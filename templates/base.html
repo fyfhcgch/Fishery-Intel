@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="渔智汇">
+    <meta name="application-name" content="渔智汇">
+    <meta name="msapplication-TileColor" content="#1890FF">
+    <meta name="theme-color" content="#1890FF">
+    <title>{% block title %}{{ _('Fish Smart Hub - Smart Aquaculture Management Platform') }}{% endblock %}</title>
+    
+    <!-- 资源预加载 -->
+    <link rel="preload" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
+    
+    <!-- Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Chart.js 延迟加载 -->
+    <link rel="preload" href="{{ url_for('static', filename='vendor/chartjs/chart.min.js') }}" as="script">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-water me-2"></i>渔智汇
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-home me-1"></i>{{ _('Dashboard') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint.startswith('data') %}active{% endif %}" href="{{ url_for('data.data') }}">
+                            <i class="fas fa-chart-line me-1"></i>{{ _('Data Management') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint.startswith('decision') %}active{% endif %}" href="{{ url_for('decision.decision') }}">
+                            <i class="fas fa-brain me-1"></i>{{ _('Decision Support') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint.startswith('alert') %}active{% endif %}" href="{{ url_for('alert.alerts') }}">
+                            <i class="fas fa-exclamation-triangle me-1"></i>{{ _('Alerts & Notifications') }}
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <!-- 语言选择器 -->
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-globe me-1"></i>{{ get_locale() }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('set_language', lang='zh') }}">中文</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('set_language', lang='en') }}">English</a></li>
+                        </ul>
+                    </li>
+                    
+                    <!-- 用户菜单 -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ user.username if user else '用户' }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('main.profile') }}">{{ _('Profile') }}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">{{ _('Logout') }}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="container-fluid py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 底部导航栏（移动端） -->
+    <nav class="navbar fixed-bottom navbar-light bg-light d-lg-none">
+        <div class="container-fluid justify-content-around">
+            <a class="nav-link text-center {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">
+                <i class="fas fa-home d-block"></i>
+                <span>{{ _('Dashboard') }}</span>
+            </a>
+            <a class="nav-link text-center {% if request.endpoint.startswith('data') %}active{% endif %}" href="{{ url_for('data.data') }}">
+                <i class="fas fa-chart-line d-block"></i>
+                <span>{{ _('Data Management') }}</span>
+            </a>
+            <a class="nav-link text-center {% if request.endpoint.startswith('decision') %}active{% endif %}" href="{{ url_for('decision.decision') }}">
+                <i class="fas fa-brain d-block"></i>
+                <span>{{ _('Decision Support') }}</span>
+            </a>
+            <a class="nav-link text-center {% if request.endpoint.startswith('alert') %}active{% endif %}" href="{{ url_for('alert.alerts') }}">
+                <i class="fas fa-exclamation-triangle d-block"></i>
+                <span>{{ _('Alerts & Notifications') }}</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- jQuery (立即加载，不使用defer) -->
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery-3.6.0.min.js') }}"></script>
+    <!-- Bootstrap Bundle with Popper (延迟加载) -->
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}" defer></script>
+    <!-- Chart.js (延迟加载) -->
+    <script src="{{ url_for('static', filename='vendor/chartjs/chart.min.js') }}" defer></script>
+    <!-- 自定义脚本 (延迟加载，但确保jQuery已加载) -->
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

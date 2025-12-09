@@ -1,0 +1,571 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pond.name }} - 渔智汇{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ pond.name }} - {{ pond.species }}</h2>
+    <div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Overview') }}
+        </a>
+    </div>
+</div>
+
+<!-- 塘口基本信息 -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-primary">{{ pond.area }}</div>
+                <div class="data-label">塘口面积(亩)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-success">{{ pond.species }}</div>
+                <div class="data-label">养殖品种</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-info">
+                    {% if latest_water_quality %}
+                    {{ latest_water_quality.dissolved_oxygen }} mg/L
+                    {% else %}
+                    --
+                    {% endif %}
+                </div>
+                <div class="data-label">当前溶解氧</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-warning">
+                    {% if latest_water_quality %}
+                    {{ latest_water_quality.temperature }}°C
+                    {% else %}
+                    --
+                    {% endif %}
+                </div>
+                <div class="data-label">当前水温</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 水质趋势图 -->
+<div class="row mb-4">
+    <div class="col-lg-6 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">溶解氧趋势(24小时)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="do-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">温度趋势(24小时)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="temp-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">pH值趋势(24小时)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="ph-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">氨氮趋势(24小时)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="ammonia-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增监测指标趋势图 -->
+<div class="row mb-4">
+    <div class="col-lg-6 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">浊度趋势(24小时)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="turbidity-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">电导率趋势(24小时)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="conductivity-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">液位趋势(24小时)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="water-level-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">化学需氧量趋势(24小时)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="cod-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 最近活动 -->
+<div class="row">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">最近投喂记录</h5>
+            </div>
+            <div class="card-body">
+                {% if feeding_history %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>投喂量</th>
+                                <th>投喂次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for feeding in feeding_history %}
+                            <tr>
+                                <td>{{ feeding.date }}</td>
+                                <td>{{ feeding.amount }} kg</td>
+                                <td>{{ feeding.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">暂无投喂记录</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">预警记录</h5>
+            </div>
+            <div class="card-body">
+                {% if alert_history %}
+                {% for alert in alert_history %}
+                <div class="alert alert-{{ 'danger' if alert.level == 'danger' else 'warning' if alert.level == 'warning' else 'info' }} alert-dismissible fade show" role="alert">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>{{ alert.title }}</strong>
+                            <div class="small">{{ alert.message }}</div>
+                            <div class="small text-muted">{{ alert.timestamp.strftime('%m-%d %H:%M') }}</div>
+                            <div class="mt-1">
+                                <span class="badge bg-{{ 'danger' if alert.status == 'active' else 'secondary' }}">
+                                    {{ '活跃' if alert.status == 'active' else '已解决' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">暂无预警记录</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示消息容器 -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // 准备图表数据
+    {% if water_quality_history %}
+    var waterQualityData = {
+        labels: [{% for wq in water_quality_history %}'{{ wq.timestamp.split(' ')[1] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        dissolved_oxygen: [{% for wq in water_quality_history %}{{ wq.dissolved_oxygen }}{% if not loop.last %},{% endif %}{% endfor %}],
+        temperature: [{% for wq in water_quality_history %}{{ wq.temperature }}{% if not loop.last %},{% endif %}{% endfor %}],
+        ph: [{% for wq in water_quality_history %}{{ wq.ph }}{% if not loop.last %},{% endif %}{% endfor %}],
+        ammonia: [{% for wq in water_quality_history %}{{ wq.ammonia }}{% if not loop.last %},{% endif %}{% endfor %}],
+        turbidity: [{% for wq in water_quality_history %}{{ wq.turbidity or 0 }}{% if not loop.last %},{% endif %}{% endfor %}],
+        conductivity: [{% for wq in water_quality_history %}{{ wq.conductivity or 0 }}{% if not loop.last %},{% endif %}{% endfor %}],
+        water_level: [{% for wq in water_quality_history %}{{ wq.water_level or 0 }}{% if not loop.last %},{% endif %}{% endfor %}],
+        cod: [{% for wq in water_quality_history %}{{ wq.cod or 0 }}{% if not loop.last %},{% endif %}{% endfor %}]
+    };
+    
+    // 创建溶解氧趋势图
+    var doCtx = document.getElementById('do-chart').getContext('2d');
+    var doChart = new Chart(doCtx, {
+        type: 'line',
+        data: {
+            labels: waterQualityData.labels,
+            datasets: [{
+                label: '溶解氧 (mg/L)',
+                data: waterQualityData.dissolved_oxygen,
+                borderColor: '#1890FF',
+                backgroundColor: 'rgba(24, 144, 255, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 0,
+                    max: 10
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // 创建温度趋势图
+    var tempCtx = document.getElementById('temp-chart').getContext('2d');
+    var tempChart = new Chart(tempCtx, {
+        type: 'line',
+        data: {
+            labels: waterQualityData.labels,
+            datasets: [{
+                label: '温度 (°C)',
+                data: waterQualityData.temperature,
+                borderColor: '#FA8C16',
+                backgroundColor: 'rgba(250, 140, 22, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // 创建pH趋势图
+    var phCtx = document.getElementById('ph-chart').getContext('2d');
+    var phChart = new Chart(phCtx, {
+        type: 'line',
+        data: {
+            labels: waterQualityData.labels,
+            datasets: [{
+                label: 'pH值',
+                data: waterQualityData.ph,
+                borderColor: '#52C41A',
+                backgroundColor: 'rgba(82, 196, 26, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 6,
+                    max: 9
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // 创建氨氮趋势图
+    var ammoniaCtx = document.getElementById('ammonia-chart').getContext('2d');
+    var ammoniaChart = new Chart(ammoniaCtx, {
+        type: 'line',
+        data: {
+            labels: waterQualityData.labels,
+            datasets: [{
+                label: '氨氮 (mg/L)',
+                data: waterQualityData.ammonia,
+                borderColor: '#F5222D',
+                backgroundColor: 'rgba(245, 34, 45, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // 创建浊度趋势图
+    var turbidityCtx = document.getElementById('turbidity-chart').getContext('2d');
+    var turbidityChart = new Chart(turbidityCtx, {
+        type: 'line',
+        data: {
+            labels: waterQualityData.labels,
+            datasets: [{
+                label: '浊度 (NTU)',
+                data: waterQualityData.turbidity,
+                borderColor: '#722ED1',
+                backgroundColor: 'rgba(114, 46, 209, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // 创建电导率趋势图
+    var conductivityCtx = document.getElementById('conductivity-chart').getContext('2d');
+    var conductivityChart = new Chart(conductivityCtx, {
+        type: 'line',
+        data: {
+            labels: waterQualityData.labels,
+            datasets: [{
+                label: '电导率 (μS/cm)',
+                data: waterQualityData.conductivity,
+                borderColor: '#13C2C2',
+                backgroundColor: 'rgba(19, 194, 194, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // 创建液位趋势图
+    var waterLevelCtx = document.getElementById('water-level-chart').getContext('2d');
+    var waterLevelChart = new Chart(waterLevelCtx, {
+        type: 'line',
+        data: {
+            labels: waterQualityData.labels,
+            datasets: [{
+                label: '液位 (m)',
+                data: waterQualityData.water_level,
+                borderColor: '#2F54EB',
+                backgroundColor: 'rgba(47, 84, 235, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    
+    // 创建化学需氧量趋势图
+    var codCtx = document.getElementById('cod-chart').getContext('2d');
+    var codChart = new Chart(codCtx, {
+        type: 'line',
+        data: {
+            labels: waterQualityData.labels,
+            datasets: [{
+                label: '化学需氧量 (mg/L)',
+                data: waterQualityData.cod,
+                borderColor: '#EB2F96',
+                backgroundColor: 'rgba(235, 47, 150, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

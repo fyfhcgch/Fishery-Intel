@@ -1,0 +1,314 @@
+# English translations for fish farm application
+# Copyright (C) 2024 Fish Smart Hub
+# This file is distributed under the same license as the fish farm application.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fish farm 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-09 15:00+0800\n"
+"PO-Revision-Date: 2024-12-09 15:00+0800\n"
+"Last-Translator: Fish Smart Hub <support@fishsmarthub.com>\n"
+"Language-Team: English <en@fishsmarthub.com>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Base template
+msgid "Fish Smart Hub - Smart Aquaculture Management Platform"
+msgstr "Fish Smart Hub - Smart Aquaculture Management Platform"
+
+# Navigation
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Data Management"
+msgstr "Data Management"
+
+msgid "Data Visualization"
+msgstr "Data Visualization"
+
+msgid "Alerts & Notifications"
+msgstr "Alerts & Notifications"
+
+msgid "Decision Support"
+msgstr "Decision Support"
+
+msgid "Weekly Report"
+msgstr "Weekly Report"
+
+msgid "Profile"
+msgstr "Profile"
+
+# Common
+msgid "Back to Home"
+msgstr "Back to Home"
+
+msgid "Loading..."
+msgstr "Loading..."
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Refresh"
+msgstr "Refresh"
+
+msgid "Time"
+msgstr "Time"
+
+msgid "Pond"
+msgstr "Pond"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Level"
+msgstr "Level"
+
+msgid "Title"
+msgstr "Title"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Actions"
+msgstr "Actions"
+
+# Alerts page
+msgid "Alerts Statistics"
+msgstr "Alerts Statistics"
+
+msgid "Active Alerts"
+msgstr "Active Alerts"
+
+msgid "Warning Level"
+msgstr "Warning Level"
+
+msgid "Info Level"
+msgstr "Info Level"
+
+msgid "Resolved Today"
+msgstr "Resolved Today"
+
+msgid "Alert Level"
+msgstr "Alert Level"
+
+msgid "All Levels"
+msgstr "All Levels"
+
+msgid "Danger"
+msgstr "Danger"
+
+msgid "Warning"
+msgstr "Warning"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "All Status"
+msgstr "All Status"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Resolved"
+msgstr "Resolved"
+
+msgid "All Ponds"
+msgstr "All Ponds"
+
+msgid "Mark All as Resolved"
+msgstr "Mark All as Resolved"
+
+msgid "Alert History"
+msgstr "Alert History"
+
+msgid "Alert Settings"
+msgstr "Alert Settings"
+
+msgid "Alert Threshold Settings"
+msgstr "Alert Threshold Settings"
+
+msgid "Dissolved Oxygen Threshold (mg/L)"
+msgstr "Dissolved Oxygen Threshold (mg/L)"
+
+msgid "Temperature Threshold (°C)"
+msgstr "Temperature Threshold (°C)"
+
+msgid "pH Threshold Range"
+msgstr "pH Threshold Range"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Maximum"
+msgstr "Maximum"
+
+msgid "Ammonia Threshold (mg/L)"
+msgstr "Ammonia Threshold (mg/L)"
+
+msgid "Notification Settings"
+msgstr "Notification Settings"
+
+msgid "Enable SMS Alerts"
+msgstr "Enable SMS Alerts"
+
+msgid "Enable Email Alerts"
+msgstr "Enable Email Alerts"
+
+msgid "Enable Push Alerts"
+msgstr "Enable Push Alerts"
+
+msgid "Alert Frequency"
+msgstr "Alert Frequency"
+
+msgid "Save Notification Settings"
+msgstr "Save Notification Settings"
+
+# Dashboard page
+msgid "Urgent Alert"
+msgstr "Urgent Alert"
+
+msgid "Pond Overview"
+msgstr "Pond Overview"
+
+msgid "High Contrast"
+msgstr "High Contrast"
+
+msgid "Large Font"
+msgstr "Large Font"
+
+msgid "Total Ponds"
+msgstr "Total Ponds"
+
+msgid "Today's Feeding Suggestion"
+msgstr "Today's Feeding Suggestion"
+
+msgid "Water Quality Score"
+msgstr "Water Quality Score"
+
+msgid "Water Quality Dashboard"
+msgstr "Water Quality Dashboard"
+
+msgid "Refresh Data"
+msgstr "Refresh Data"
+
+msgid "Today's Weather"
+msgstr "Today's Weather"
+
+msgid "Humidity"
+msgstr "Humidity"
+
+msgid "Wind"
+msgstr "Wind"
+
+msgid "Feeding Calendar"
+msgstr "Feeding Calendar"
+
+# Data page
+msgid "Real-time Data"
+msgstr "Real-time Data"
+
+msgid "Pond ECG Chart"
+msgstr "Pond ECG Chart"
+
+msgid "Select Pond"
+msgstr "Select Pond"
+
+msgid "Time Range"
+msgstr "Time Range"
+
+msgid "Last 24 Hours"
+msgstr "Last 24 Hours"
+
+msgid "Last 7 Days"
+msgstr "Last 7 Days"
+
+msgid "Data Comparison"
+msgstr "Data Comparison"
+
+msgid "Overlay Yesterday's Data"
+msgstr "Overlay Yesterday's Data"
+
+msgid "Auto Refresh"
+msgstr "Auto Refresh"
+
+# Data Visualization page
+msgid "Report Type"
+msgstr "Report Type"
+
+msgid "Daily"
+msgstr "Daily"
+
+msgid "Weekly"
+msgstr "Weekly"
+
+msgid "Monthly"
+msgstr "Monthly"
+
+msgid "Date Range"
+msgstr "Date Range"
+
+msgid "Pond Filter"
+msgstr "Pond Filter"
+
+msgid "Generate Report"
+msgstr "Generate Report"
+
+# Decision page
+msgid "Decision Center"
+msgstr "Decision Center"
+
+msgid "AI Aquaculture Brain"
+msgstr "AI Aquaculture Brain"
+
+msgid "Get Today's Feeding Plan"
+msgstr "Get Today's Feeding Plan"
+
+msgid "Historical Decisions"
+msgstr "Historical Decisions"
+
+# Weekly Report page
+msgid "Select Weekly Report"
+msgstr "Select Weekly Report"
+
+msgid "Export PDF"
+msgstr "Export PDF"
+
+# Profile page
+msgid "Preferences"
+msgstr "Preferences"
+
+msgid "High Contrast Mode"
+msgstr "High Contrast Mode"
+
+msgid "Large Font Mode"
+msgstr "Large Font Mode"
+
+msgid "Dark Mode"
+msgstr "Dark Mode"
+
+# Pond detail page
+msgid "Back to Overview"
+msgstr "Back to Overview"
+
+# JavaScript text
+msgid "years ago"
+msgstr "years ago"
+
+msgid "months ago"
+msgstr "months ago"
+
+msgid "days ago"
+msgstr "days ago"
+
+msgid "hours ago"
+msgstr "hours ago"
+
+msgid "minutes ago"
+msgstr "minutes ago"
+
+msgid "just now"
+msgstr "just now"

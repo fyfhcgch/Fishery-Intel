@@ -1,0 +1,2203 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Real-time Data') }} - 渔智汇{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ _('Pond ECG Chart') }}</h2>
+    <div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Home') }}
+        </a>
+    </div>
+</div>
+
+<!-- 塘口选择器 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label for="pondSelect" class="form-label">{{ _('Select Pond') }}</label>
+                        <select class="form-select" id="pondSelect" onchange="changePond()">
+                            {% for pond in ponds %}
+                            <option value="{{ pond.id }}" {% if pond.id == selected_pond_id %}selected{% endif %}>
+                                {{ pond.name }} - {{ pond.species }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="timeRange" class="form-label">{{ _('Time Range') }}</label>
+                        <select class="form-select" id="timeRange" onchange="changeTimeRange()">
+                            <option value="1">{{ _('Last 24 Hours') }}</option>
+                            <option value="7" selected>{{ _('Last 7 Days') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="compareYesterday" class="form-label">{{ _('Data Comparison') }}</label>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="compareYesterday" onchange="toggleCompare()">
+                            <label class="form-check-label" for="compareYesterday">
+                                {{ _('Overlay Yesterday\'s Data') }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="autoRefresh" class="form-label">{{ _('Auto Refresh') }}</label>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="autoRefresh" checked onchange="toggleAutoRefresh()">
+                            <label class="form-check-label" for="autoRefresh">
+                                每5分钟自动刷新
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 水质参数图表 -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">溶解氧趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: >4.5mg/L</span>
+                    <span class="badge bg-warning">警告: 3.5-4.5mg/L</span>
+                    <span class="badge bg-danger">危险: <3.5mg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="doChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">温度趋势</h5>
+                <div>
+                    <span class="badge bg-info">适宜: 22-28°C</span>
+                    <span class="badge bg-warning">警告: 18-22°C 或 28-32°C</span>
+                    <span class="badge bg-danger">危险: <18°C 或 >32°C</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="tempChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">pH值趋势</h5>
+                <div>
+                    <span class="badge bg-success">适宜: 7.0-8.0</span>
+                    <span class="badge bg-warning">警告: 6.5-7.0 或 8.0-8.5</span>
+                    <span class="badge bg-danger">危险: <6.5 或 >8.5</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="phChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">氨氮趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <0.4mg/L</span>
+                    <span class="badge bg-warning">警告: 0.4-0.6mg/L</span>
+                    <span class="badge bg-danger">危险: >0.6mg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="ammoniaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 完整监测指标趋势图 -->
+<div class="row mb-4">
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">浊度趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <20 NTU</span>
+                    <span class="badge bg-warning">警告: 20-50 NTU</span>
+                    <span class="badge bg-danger">危险: >50 NTU</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="turbidityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">电导率趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: 300-800 μS/cm</span>
+                    <span class="badge bg-warning">警告: 200-300 或 800-1200 μS/cm</span>
+                    <span class="badge bg-danger">危险: <200 或 >1200 μS/cm</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="conductivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">液位趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: 1.2-2.0 m</span>
+                    <span class="badge bg-warning">警告: 0.8-1.2 或 2.0-2.5 m</span>
+                    <span class="badge bg-danger">危险: <0.8 或 >2.5 m</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="waterLevelChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">化学需氧量趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <15 mg/L</span>
+                    <span class="badge bg-warning">警告: 15-25 mg/L</span>
+                    <span class="badge bg-danger">危险: >25 mg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="codChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">重金属趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <0.05 μg/L</span>
+                    <span class="badge bg-warning">警告: 0.05-0.1 μg/L</span>
+                    <span class="badge bg-danger">危险: >0.1 μg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="heavyMetalsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">余氯趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: 0.3-0.5 mg/L</span>
+                    <span class="badge bg-warning">警告: 0.2-0.3 或 0.5-0.8 mg/L</span>
+                    <span class="badge bg-danger">危险: <0.2 或 >0.8 mg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chlorineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">亚硝酸盐趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <0.1 mg/L</span>
+                    <span class="badge bg-warning">警告: 0.1-0.3 mg/L</span>
+                    <span class="badge bg-danger">危险: >0.3 mg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="nitriteChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">总磷趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <0.1 mg/L</span>
+                    <span class="badge bg-warning">警告: 0.1-0.2 mg/L</span>
+                    <span class="badge bg-danger">危险: >0.2 mg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="totalPhosphorusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">总氮趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <1.0 mg/L</span>
+                    <span class="badge bg-warning">警告: 1.0-2.0 mg/L</span>
+                    <span class="badge bg-danger">危险: >2.0 mg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="totalNitrogenChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">总大肠菌群趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <200 个/L</span>
+                    <span class="badge bg-warning">警告: 200-500 个/L</span>
+                    <span class="badge bg-danger">危险: >500 个/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="coliformChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">藻类趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <2000 个/mL</span>
+                    <span class="badge bg-warning">警告: 2000-5000 个/mL</span>
+                    <span class="badge bg-danger">危险: >5000 个/mL</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="algaeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">生物毒性趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <10%</span>
+                    <span class="badge bg-warning">警告: 10-20%</span>
+                    <span class="badge bg-danger">危险: >20%</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="toxicityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">叶绿素趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: <10 μg/L</span>
+                    <span class="badge bg-warning">警告: 10-30 μg/L</span>
+                    <span class="badge bg-danger">危险: >30 μg/L</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chlorophyllChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">透明度趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: >30 cm</span>
+                    <span class="badge bg-warning">警告: 20-30 cm</span>
+                    <span class="badge bg-danger">危险: <20 cm</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="transparencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">盐度趋势</h5>
+                <div>
+                    <span class="badge bg-success">正常: 0-5‰</span>
+                    <span class="badge bg-warning">警告: 5-15‰</span>
+                    <span class="badge bg-danger">危险: >15‰</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="salinityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 数据对比图表 -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">塘口水质对比</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="pond-comparison"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">参数历史对比</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="parameter-comparison"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 预测图表 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">溶解氧预测分析</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="prediction-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 关键事件标记 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">关键事件记录</h5>
+            </div>
+            <div class="card-body">
+                <div id="eventsTimeline">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-spinner fa-spin me-2"></i>加载中...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- 数据统计 -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-primary" id="avgDo">--</div>
+                <div class="data-label">平均溶解氧(mg/L)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-info" id="avgTemp">--</div>
+                <div class="data-label">平均温度(°C)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-success" id="avgPh">--</div>
+                <div class="data-label">平均pH值</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-warning" id="avgAmmonia">--</div>
+                <div class="data-label">平均氨氮(mg/L)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 数据导出 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">数据导出</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="exportFormat" class="form-label">导出格式</label>
+                        <select class="form-select" id="exportFormat">
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="exportDays" class="form-label">时间范围</label>
+                        <select class="form-select" id="exportDays">
+                            <option value="1">最近1天</option>
+                            <option value="7">最近7天</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button class="btn btn-primary" onclick="exportData()">
+                                <i class="fas fa-download me-1"></i>导出数据
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button class="btn btn-outline-secondary" onclick="printData()">
+                                <i class="fas fa-print me-1"></i>打印报表
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示消息容器 -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var doChart, tempChart, phChart, ammoniaChart;
+var turbidityChart, conductivityChart, waterLevelChart, codChart;
+var heavyMetalsChart, chlorineChart, nitriteChart, totalPhosphorusChart;
+var totalNitrogenChart, coliformChart, algaeChart, toxicityChart;
+var chlorophyllChart, transparencyChart, salinityChart;
+var autoRefreshInterval;
+var currentPondId = {{ selected_pond_id }};
+var compareMode = false;
+
+$(document).ready(function() {
+    // 初始化图表
+    initCharts();
+    
+    // 加载数据
+    loadWaterQualityData();
+    
+    // 开始自动刷新
+    startAutoRefresh();
+});
+
+// 初始化图表
+function initCharts() {
+    var chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                }
+            },
+            y: {
+                beginAtZero: false
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    };
+    
+    // 溶解氧图表
+    var doCtx = document.getElementById('doChart').getContext('2d');
+    doChart = new Chart(doCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 10
+                }
+            }
+        }
+    });
+    
+    // 温度图表
+    var tempCtx = document.getElementById('tempChart').getContext('2d');
+    tempChart = new Chart(tempCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: chartOptions
+    });
+    
+    // pH图表
+    var phCtx = document.getElementById('phChart').getContext('2d');
+    phChart = new Chart(phCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 6,
+                    max: 9
+                }
+            }
+        }
+    });
+    
+    // 氨氮图表
+    var ammoniaCtx = document.getElementById('ammoniaChart').getContext('2d');
+    ammoniaChart = new Chart(ammoniaCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 1.0
+                }
+            }
+        }
+    });
+    
+    // 浊度图表
+    var turbidityCtx = document.getElementById('turbidityChart').getContext('2d');
+    turbidityChart = new Chart(turbidityCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+    // 电导率图表
+    var conductivityCtx = document.getElementById('conductivityChart').getContext('2d');
+    conductivityChart = new Chart(conductivityCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 1000
+                }
+            }
+        }
+    });
+    
+    // 液位图表
+    var waterLevelCtx = document.getElementById('waterLevelChart').getContext('2d');
+    waterLevelChart = new Chart(waterLevelCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 3
+                }
+            }
+        }
+    });
+    
+    // 化学需氧量图表
+    var codCtx = document.getElementById('codChart').getContext('2d');
+    codChart = new Chart(codCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 50
+                }
+            }
+        }
+    });
+    
+    // 重金属图表
+    var heavyMetalsCtx = document.getElementById('heavyMetalsChart').getContext('2d');
+    heavyMetalsChart = new Chart(heavyMetalsCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 0.2
+                }
+            }
+        }
+    });
+    
+    // 余氯图表
+    var chlorineCtx = document.getElementById('chlorineChart').getContext('2d');
+    chlorineChart = new Chart(chlorineCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 2
+                }
+            }
+        }
+    });
+    
+    // 亚硝酸盐图表
+    var nitriteCtx = document.getElementById('nitriteChart').getContext('2d');
+    nitriteChart = new Chart(nitriteCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 0.5
+                }
+            }
+        }
+    });
+    
+    // 总磷图表
+    var totalPhosphorusCtx = document.getElementById('totalPhosphorusChart').getContext('2d');
+    totalPhosphorusChart = new Chart(totalPhosphorusCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 1.0
+                }
+            }
+        }
+    });
+    
+    // 总氮图表
+    var totalNitrogenCtx = document.getElementById('totalNitrogenChart').getContext('2d');
+    totalNitrogenChart = new Chart(totalNitrogenCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 5
+                }
+            }
+        }
+    });
+    
+    // 总大肠菌群图表
+    var coliformCtx = document.getElementById('coliformChart').getContext('2d');
+    coliformChart = new Chart(coliformCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 1000
+                }
+            }
+        }
+    });
+    
+    // 藻类图表
+    var algaeCtx = document.getElementById('algaeChart').getContext('2d');
+    algaeChart = new Chart(algaeCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 10000
+                }
+            }
+        }
+    });
+    
+    // 生物毒性图表
+    var toxicityCtx = document.getElementById('toxicityChart').getContext('2d');
+    toxicityChart = new Chart(toxicityCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 20
+                }
+            }
+        }
+    });
+    
+    // 叶绿素a图表
+    var chlorophyllCtx = document.getElementById('chlorophyllChart').getContext('2d');
+    chlorophyllChart = new Chart(chlorophyllCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 30
+                }
+            }
+        }
+    });
+    
+    // 透明度图表
+    var transparencyCtx = document.getElementById('transparencyChart').getContext('2d');
+    transparencyChart = new Chart(transparencyCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 60
+                }
+            }
+        }
+    });
+    
+    // 盐度图表
+    var salinityCtx = document.getElementById('salinityChart').getContext('2d');
+    salinityChart = new Chart(salinityCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            ...chartOptions,
+            scales: {
+                ...chartOptions.scales,
+                y: {
+                    ...chartOptions.scales.y,
+                    min: 0,
+                    max: 5
+                }
+            }
+        }
+    });
+    
+    // 初始化新添加的图表
+    // 这些函数在main.js中定义
+    if (typeof createPondComparisonChart === 'function' && document.getElementById('pond-comparison')) {
+        createPondComparisonChart();
+    }
+    
+    if (typeof createParameterComparisonChart === 'function' && document.getElementById('parameter-comparison')) {
+        createParameterComparisonChart();
+    }
+    
+    if (typeof createPredictionChart === 'function' && document.getElementById('prediction-chart')) {
+        createPredictionChart();
+    }
+}
+
+// 加载水质数据
+function loadWaterQualityData() {
+    var days = $('#timeRange').val();
+    var compare = $('#compareYesterday').prop('checked') ? 1 : 0;
+    
+    $.get('/data/api/water_quality/' + currentPondId + '?days=' + days + '&compare=' + compare, function(data) {
+        // 更新图表
+        updateCharts(data);
+        
+        // 更新统计数据
+        updateStatistics(data.current_data);
+        
+        // 更新事件时间线
+        updateEventsTimeline(data.events);
+    });
+}
+
+// 更新图表
+function updateCharts(data) {
+    // 获取时间范围
+    var days = $('#timeRange').val();
+    
+    // 准备当前数据集
+    var currentLabels = data.current_data.map(item => {
+        var date = new Date(item.timestamp);
+        
+        // 根据时间范围调整标签格式
+        if (days <= 1) {
+            // 24小时内，显示时分
+            return date.toLocaleString('zh-CN', { 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        } else if (days <= 7) {
+            // 7天内，显示月日时分
+            return date.toLocaleString('zh-CN', { 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        } else {
+            // 超过7天，只显示月日
+            return date.toLocaleString('zh-CN', { 
+                month: '2-digit', 
+                day: '2-digit'
+            });
+        }
+    });
+    
+    var currentDoData = data.current_data.map(item => item.dissolved_oxygen);
+    var currentTempData = data.current_data.map(item => item.temperature);
+    var currentPhData = data.current_data.map(item => item.ph);
+    var currentAmmoniaData = data.current_data.map(item => item.ammonia);
+    
+    // 更新溶解氧图表
+    var doDatasets = [{
+        label: '溶解氧 (mg/L)',
+        data: currentDoData,
+        borderColor: '#1890FF',
+        backgroundColor: 'rgba(24, 144, 255, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 3.5) return '#F5222D'; // 危险 - 红色
+                if (value < 4.5) return '#FA8C16'; // 警告 - 橙色
+                return '#1890FF'; // 正常 - 蓝色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 3.5) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value < 4.5) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(24, 144, 255, 0.1)'; // 正常 - 蓝色
+            }
+        }
+    }];
+    
+    // 如果启用了对比模式，添加昨日数据
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        var yesterdayDoData = data.yesterday_data.map(item => item.dissolved_oxygen);
+        doDatasets.push({
+            label: '昨日溶解氧 (mg/L)',
+            data: yesterdayDoData,
+            borderColor: '#1890FF',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    doChart.data.labels = currentLabels;
+    doChart.data.datasets = doDatasets;
+    doChart.update();
+    
+    // 更新温度图表
+    var tempDatasets = [{
+        label: '温度 (°C)',
+        data: currentTempData,
+        borderColor: '#FA8C16',
+        backgroundColor: 'rgba(250, 140, 22, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 18 || value > 32) return '#F5222D'; // 危险 - 红色
+                if (value < 22 || value > 28) return '#FA8C16'; // 警告 - 橙色
+                return '#1890FF'; // 正常 - 蓝色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 18 || value > 32) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value < 22 || value > 28) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(24, 144, 255, 0.1)'; // 正常 - 蓝色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        var yesterdayTempData = data.yesterday_data.map(item => item.temperature);
+        tempDatasets.push({
+            label: '昨日温度 (°C)',
+            data: yesterdayTempData,
+            borderColor: '#FA8C16',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    tempChart.data.labels = currentLabels;
+    tempChart.data.datasets = tempDatasets;
+    tempChart.update();
+    
+    // 更新pH图表
+    var phDatasets = [{
+        label: 'pH值',
+        data: currentPhData,
+        borderColor: '#52C41A',
+        backgroundColor: 'rgba(82, 196, 26, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 6.5 || value > 8.5) return '#F5222D'; // 危险 - 红色
+                if (value < 7.0 || value > 8.0) return '#FA8C16'; // 警告 - 橙色
+                return '#52C41A'; // 正常 - 绿色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 6.5 || value > 8.5) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value < 7.0 || value > 8.0) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(82, 196, 26, 0.1)'; // 正常 - 绿色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        var yesterdayPhData = data.yesterday_data.map(item => item.ph);
+        phDatasets.push({
+            label: '昨日pH值',
+            data: yesterdayPhData,
+            borderColor: '#52C41A',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    phChart.data.labels = currentLabels;
+    phChart.data.datasets = phDatasets;
+    phChart.update();
+    
+    // 更新氨氮图表
+    var ammoniaDatasets = [{
+        label: '氨氮 (mg/L)',
+        data: currentAmmoniaData,
+        borderColor: '#F5222D',
+        backgroundColor: 'rgba(245, 34, 45, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.6) return '#F5222D'; // 危险 - 红色
+                if (value >= 0.4) return '#FA8C16'; // 警告 - 橙色
+                return '#52C41A'; // 正常 - 绿色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.6) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 0.4) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(82, 196, 26, 0.1)'; // 正常 - 绿色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        var yesterdayAmmoniaData = data.yesterday_data.map(item => item.ammonia);
+        ammoniaDatasets.push({
+            label: '昨日氨氮 (mg/L)',
+            data: yesterdayAmmoniaData,
+            borderColor: '#F5222D',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    ammoniaChart.data.labels = currentLabels;
+    ammoniaChart.data.datasets = ammoniaDatasets;
+    ammoniaChart.update();
+    
+    // 更新浊度图表
+    var turbidityDatasets = [{
+        label: '浊度 (NTU)',
+        data: data.current_data.map(item => item.turbidity || 20),
+        borderColor: '#722ED1',
+        backgroundColor: 'rgba(114, 46, 209, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 50) return '#F5222D'; // 危险 - 红色
+                if (value >= 20) return '#FA8C16'; // 警告 - 橙色
+                return '#722ED1'; // 正常 - 紫色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 50) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 20) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(114, 46, 209, 0.1)'; // 正常 - 紫色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        turbidityDatasets.push({
+            label: '昨日浊度 (NTU)',
+            data: data.yesterday_data.map(item => item.turbidity || 20),
+            borderColor: '#722ED1',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    turbidityChart.data.labels = currentLabels;
+    turbidityChart.data.datasets = turbidityDatasets;
+    turbidityChart.update();
+    
+    // 更新电导率图表
+    var conductivityDatasets = [{
+        label: '电导率 (μS/cm)',
+        data: data.current_data.map(item => item.conductivity || 500),
+        borderColor: '#13C2C2',
+        backgroundColor: 'rgba(19, 194, 194, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 800) return '#F5222D'; // 危险 - 红色
+                if (value >= 500) return '#FA8C16'; // 警告 - 橙色
+                return '#13C2C2'; // 正常 - 青色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 800) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 500) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(19, 194, 194, 0.1)'; // 正常 - 青色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        conductivityDatasets.push({
+            label: '昨日电导率 (μS/cm)',
+            data: data.yesterday_data.map(item => item.conductivity || 500),
+            borderColor: '#13C2C2',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    conductivityChart.data.labels = currentLabels;
+    conductivityChart.data.datasets = conductivityDatasets;
+    conductivityChart.update();
+    
+    // 更新液位图表
+    var waterLevelDatasets = [{
+        label: '液位 (m)',
+        data: data.current_data.map(item => item.water_level || 1.5),
+        borderColor: '#2F54EB',
+        backgroundColor: 'rgba(47, 84, 235, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 0.8 || value > 2.2) return '#F5222D'; // 危险 - 红色
+                if (value < 1.0 || value > 2.0) return '#FA8C16'; // 警告 - 橙色
+                return '#2F54EB'; // 正常 - 蓝色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 0.8 || value > 2.2) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value < 1.0 || value > 2.0) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(47, 84, 235, 0.1)'; // 正常 - 蓝色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        waterLevelDatasets.push({
+            label: '昨日液位 (m)',
+            data: data.yesterday_data.map(item => item.water_level || 1.5),
+            borderColor: '#2F54EB',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    waterLevelChart.data.labels = currentLabels;
+    waterLevelChart.data.datasets = waterLevelDatasets;
+    waterLevelChart.update();
+    
+    // 更新化学需氧量图表
+    var codDatasets = [{
+        label: '化学需氧量 (mg/L)',
+        data: data.current_data.map(item => item.cod || 20),
+        borderColor: '#EB2F96',
+        backgroundColor: 'rgba(235, 47, 150, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 30) return '#F5222D'; // 危险 - 红色
+                if (value >= 25) return '#FA8C16'; // 警告 - 橙色
+                return '#EB2F96'; // 正常 - 粉色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 30) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 25) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(235, 47, 150, 0.1)'; // 正常 - 粉色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        codDatasets.push({
+            label: '昨日化学需氧量 (mg/L)',
+            data: data.yesterday_data.map(item => item.cod || 20),
+            borderColor: '#EB2F96',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    codChart.data.labels = currentLabels;
+    codChart.data.datasets = codDatasets;
+    codChart.update();
+    
+    // 更新重金属图表
+    var heavyMetalsDatasets = [{
+        label: '重金属 (μg/L)',
+        data: data.current_data.map(item => item.heavy_metals || 0.08),
+        borderColor: '#A0D911',
+        backgroundColor: 'rgba(160, 217, 17, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.1) return '#F5222D'; // 危险 - 红色
+                if (value >= 0.09) return '#FA8C16'; // 警告 - 橙色
+                return '#A0D911'; // 正常 - 黄绿色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.1) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 0.09) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(160, 217, 17, 0.1)'; // 正常 - 黄绿色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        heavyMetalsDatasets.push({
+            label: '昨日重金属 (μg/L)',
+            data: data.yesterday_data.map(item => item.heavy_metals || 0.08),
+            borderColor: '#A0D911',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    heavyMetalsChart.data.labels = currentLabels;
+    heavyMetalsChart.data.datasets = heavyMetalsDatasets;
+    heavyMetalsChart.update();
+    
+    // 更新余氯图表
+    var chlorineDatasets = [{
+        label: '余氯 (mg/L)',
+        data: data.current_data.map(item => item.chlorine || 0.4),
+        borderColor: '#FADB14',
+        backgroundColor: 'rgba(250, 219, 20, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.5) return '#F5222D'; // 危险 - 红色
+                if (value >= 0.45) return '#FA8C16'; // 警告 - 橙色
+                return '#FADB14'; // 正常 - 黄色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.5) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 0.45) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(250, 219, 20, 0.1)'; // 正常 - 黄色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        chlorineDatasets.push({
+            label: '昨日余氯 (mg/L)',
+            data: data.yesterday_data.map(item => item.chlorine || 0.4),
+            borderColor: '#FADB14',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    chlorineChart.data.labels = currentLabels;
+    chlorineChart.data.datasets = chlorineDatasets;
+    chlorineChart.update();
+    
+    // 更新亚硝酸盐图表
+    var nitriteDatasets = [{
+        label: '亚硝酸盐 (mg/L)',
+        data: data.current_data.map(item => item.nitrite || 0.08),
+        borderColor: '#FF4D4F',
+        backgroundColor: 'rgba(255, 77, 79, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.1) return '#F5222D'; // 危险 - 红色
+                if (value >= 0.09) return '#FA8C16'; // 警告 - 橙色
+                return '#FF4D4F'; // 正常 - 浅红色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.1) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 0.09) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(255, 77, 79, 0.1)'; // 正常 - 浅红色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        nitriteDatasets.push({
+            label: '昨日亚硝酸盐 (mg/L)',
+            data: data.yesterday_data.map(item => item.nitrite || 0.08),
+            borderColor: '#FF4D4F',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    nitriteChart.data.labels = currentLabels;
+    nitriteChart.data.datasets = nitriteDatasets;
+    nitriteChart.update();
+    
+    // 更新总磷图表
+    var totalPhosphorusDatasets = [{
+        label: '总磷 (mg/L)',
+        data: data.current_data.map(item => item.total_phosphorus || 0.23),
+        borderColor: '#52C41A',
+        backgroundColor: 'rgba(82, 196, 26, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.3) return '#F5222D'; // 危险 - 红色
+                if (value >= 0.25) return '#FA8C16'; // 警告 - 橙色
+                return '#52C41A'; // 正常 - 绿色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 0.3) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 0.25) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(82, 196, 26, 0.1)'; // 正常 - 绿色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        totalPhosphorusDatasets.push({
+            label: '昨日总磷 (mg/L)',
+            data: data.yesterday_data.map(item => item.total_phosphorus || 0.23),
+            borderColor: '#52C41A',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    totalPhosphorusChart.data.labels = currentLabels;
+    totalPhosphorusChart.data.datasets = totalPhosphorusDatasets;
+    totalPhosphorusChart.update();
+    
+    // 更新总氮图表
+    var totalNitrogenDatasets = [{
+        label: '总氮 (mg/L)',
+        data: data.current_data.map(item => item.total_nitrogen || 1.8),
+        borderColor: '#1890FF',
+        backgroundColor: 'rgba(24, 144, 255, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 2.0) return '#F5222D'; // 危险 - 红色
+                if (value >= 1.9) return '#FA8C16'; // 警告 - 橙色
+                return '#1890FF'; // 正常 - 蓝色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 2.0) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 1.9) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(24, 144, 255, 0.1)'; // 正常 - 蓝色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        totalNitrogenDatasets.push({
+            label: '昨日总氮 (mg/L)',
+            data: data.yesterday_data.map(item => item.total_nitrogen || 1.8),
+            borderColor: '#1890FF',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    totalNitrogenChart.data.labels = currentLabels;
+    totalNitrogenChart.data.datasets = totalNitrogenDatasets;
+    totalNitrogenChart.update();
+    
+    // 更新总大肠菌群图表
+    var coliformDatasets = [{
+        label: '总大肠菌群 (个/L)',
+        data: data.current_data.map(item => item.coliform || 275),
+        borderColor: '#722ED1',
+        backgroundColor: 'rgba(114, 46, 209, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 500) return '#F5222D'; // 危险 - 红色
+                if (value >= 400) return '#FA8C16'; // 警告 - 橙色
+                return '#722ED1'; // 正常 - 紫色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 500) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 400) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(114, 46, 209, 0.1)'; // 正常 - 紫色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        coliformDatasets.push({
+            label: '昨日总大肠菌群 (个/L)',
+            data: data.yesterday_data.map(item => item.coliform || 275),
+            borderColor: '#722ED1',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    coliformChart.data.labels = currentLabels;
+    coliformChart.data.datasets = coliformDatasets;
+    coliformChart.update();
+    
+    // 更新藻类图表
+    var algaeDatasets = [{
+        label: '藻类 (个/mL)',
+        data: data.current_data.map(item => item.algae || 2823),
+        borderColor: '#13C2C2',
+        backgroundColor: 'rgba(19, 194, 194, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 5000) return '#F5222D'; // 危险 - 红色
+                if (value >= 4000) return '#FA8C16'; // 警告 - 橙色
+                return '#13C2C2'; // 正常 - 青色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 5000) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 4000) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(19, 194, 194, 0.1)'; // 正常 - 青色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        algaeDatasets.push({
+            label: '昨日藻类 (个/mL)',
+            data: data.yesterday_data.map(item => item.algae || 2823),
+            borderColor: '#13C2C2',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    algaeChart.data.labels = currentLabels;
+    algaeChart.data.datasets = algaeDatasets;
+    algaeChart.update();
+    
+    // 更新生物毒性图表
+    var toxicityDatasets = [{
+        label: '生物毒性 (%)',
+        data: data.current_data.map(item => item.toxicity || 9.7),
+        borderColor: '#FA541C',
+        backgroundColor: 'rgba(250, 84, 28, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 15) return '#F5222D'; // 危险 - 红色
+                if (value >= 12) return '#FA8C16'; // 警告 - 橙色
+                return '#FA541C'; // 正常 - 深橙色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 15) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 12) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(250, 84, 28, 0.1)'; // 正常 - 深橙色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        toxicityDatasets.push({
+            label: '昨日生物毒性 (%)',
+            data: data.yesterday_data.map(item => item.toxicity || 9.7),
+            borderColor: '#FA541C',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    toxicityChart.data.labels = currentLabels;
+    toxicityChart.data.datasets = toxicityDatasets;
+    toxicityChart.update();
+    
+    // 更新叶绿素a图表
+    var chlorophyllDatasets = [{
+        label: '叶绿素a (μg/L)',
+        data: data.current_data.map(item => item.chlorophyll || 12.5),
+        borderColor: '#52C41A',
+        backgroundColor: 'rgba(82, 196, 26, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 20) return '#F5222D'; // 危险 - 红色
+                if (value >= 15) return '#FA8C16'; // 警告 - 橙色
+                return '#52C41A'; // 正常 - 绿色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 20) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 15) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(82, 196, 26, 0.1)'; // 正常 - 绿色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        chlorophyllDatasets.push({
+            label: '昨日叶绿素a (μg/L)',
+            data: data.yesterday_data.map(item => item.chlorophyll || 12.5),
+            borderColor: '#52C41A',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    chlorophyllChart.data.labels = currentLabels;
+    chlorophyllChart.data.datasets = chlorophyllDatasets;
+    chlorophyllChart.update();
+    
+    // 更新透明度图表
+    var transparencyDatasets = [{
+        label: '透明度 (cm)',
+        data: data.current_data.map(item => item.transparency || 35),
+        borderColor: '#1890FF',
+        backgroundColor: 'rgba(24, 144, 255, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 20) return '#F5222D'; // 危险 - 红色
+                if (value < 25) return '#FA8C16'; // 警告 - 橙色
+                return '#1890FF'; // 正常 - 蓝色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value < 20) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value < 25) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(24, 144, 255, 0.1)'; // 正常 - 蓝色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        transparencyDatasets.push({
+            label: '昨日透明度 (cm)',
+            data: data.yesterday_data.map(item => item.transparency || 35),
+            borderColor: '#1890FF',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    transparencyChart.data.labels = currentLabels;
+    transparencyChart.data.datasets = transparencyDatasets;
+    transparencyChart.update();
+    
+    // 更新盐度图表
+    var salinityDatasets = [{
+        label: '盐度 (‰)',
+        data: data.current_data.map(item => item.salinity || 0.5),
+        borderColor: '#13C2C2',
+        backgroundColor: 'rgba(19, 194, 194, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        segment: {
+            borderColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 1.0) return '#F5222D'; // 危险 - 红色
+                if (value >= 0.8) return '#FA8C16'; // 警告 - 橙色
+                return '#13C2C2'; // 正常 - 青色
+            },
+            backgroundColor: ctx => {
+                const value = ctx.p1.parsed.y;
+                if (value > 1.0) return 'rgba(245, 34, 45, 0.1)'; // 危险 - 红色
+                if (value >= 0.8) return 'rgba(250, 140, 22, 0.1)'; // 警告 - 橙色
+                return 'rgba(19, 194, 194, 0.1)'; // 正常 - 青色
+            }
+        }
+    }];
+    
+    if (compareMode && data.yesterday_data && data.yesterday_data.length > 0) {
+        salinityDatasets.push({
+            label: '昨日盐度 (‰)',
+            data: data.yesterday_data.map(item => item.salinity || 0.5),
+            borderColor: '#13C2C2',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5
+        });
+    }
+    
+    salinityChart.data.labels = currentLabels;
+    salinityChart.data.datasets = salinityDatasets;
+    salinityChart.update();
+}
+
+// 更新统计数据
+function updateStatistics(data) {
+    if (data.length === 0) {
+        // 更新统计卡片
+        $('#avgDo').text('--');
+        $('#avgTemp').text('--');
+        $('#avgPh').text('--');
+        $('#avgAmmonia').text('--');
+        
+        // 更新水质指标
+        $('#turbidity').text('-- NTU');
+        $('#conductivity').text('-- μS/cm');
+        $('#waterLevel').text('-- m');
+        $('#cod').text('-- mg/L');
+        $('#heavyMetals').text('-- μg/L');
+        $('#chlorine').text('-- mg/L');
+        $('#do').text('-- mg/L');
+        $('#temp').text('-- °C');
+        $('#ph').text('--');
+        $('#ammonia').text('-- mg/L');
+        $('#nitrite').text('-- mg/L');
+        
+        // 更新其他指标
+        $('#totalPhosphorus').text('-- mg/L');
+        $('#totalNitrogen').text('-- mg/L');
+        $('#coliform').text('-- 个/L');
+        $('#algae').text('-- 个/mL');
+        $('#toxicity').text('-- %');
+        $('#chlorophyll').text('-- μg/L');
+        $('#transparency').text('-- cm');
+        $('#salinity').text('-- ‰');
+        return;
+    }
+    
+    // 获取最新数据
+    var latestData = data[data.length - 1];
+    
+    // 计算平均值
+    var avgDo = data.reduce((sum, item) => sum + item.dissolved_oxygen, 0) / data.length;
+    var avgTemp = data.reduce((sum, item) => sum + item.temperature, 0) / data.length;
+    var avgPh = data.reduce((sum, item) => sum + item.ph, 0) / data.length;
+    var avgAmmonia = data.reduce((sum, item) => sum + item.ammonia, 0) / data.length;
+    
+    // 更新统计卡片
+    $('#avgDo').text(avgDo.toFixed(1));
+    $('#avgTemp').text(avgTemp.toFixed(1));
+    $('#avgPh').text(avgPh.toFixed(1));
+    $('#avgAmmonia').text(avgAmmonia.toFixed(2));
+    
+    // 更新水质指标 - 使用最新数据
+    $('#turbidity').text((latestData.turbidity || 19.8).toFixed(1) + ' NTU');
+    $('#conductivity').text((latestData.conductivity || 492) + ' μS/cm');
+    $('#waterLevel').text((latestData.water_level || 1.51).toFixed(2) + ' m');
+    $('#cod').text((latestData.cod || 20.3).toFixed(1) + ' mg/L');
+    $('#heavyMetals').text((latestData.heavy_metals || 0.083).toFixed(3) + ' μg/L');
+    $('#chlorine').text((latestData.chlorine || 0.4).toFixed(1) + ' mg/L');
+    $('#do').text(latestData.dissolved_oxygen.toFixed(1) + ' mg/L');
+    $('#temp').text(latestData.temperature.toFixed(1) + ' °C');
+    $('#ph').text(latestData.ph.toFixed(1));
+    $('#ammonia').text(latestData.ammonia.toFixed(2) + ' mg/L');
+    $('#nitrite').text((latestData.nitrite || 0.08).toFixed(2) + ' mg/L');
+    
+    // 更新其他指标 - 使用最新数据
+    $('#totalPhosphorus').text((latestData.total_phosphorus || 0.23).toFixed(2) + ' mg/L');
+    $('#totalNitrogen').text((latestData.total_nitrogen || 1.8).toFixed(1) + ' mg/L');
+    $('#coliform').text((latestData.coliform || 275) + ' 个/L');
+    $('#algae').text((latestData.algae || 2823) + ' 个/mL');
+    $('#toxicity').text((latestData.toxicity || 9.7).toFixed(1) + ' %');
+    $('#chlorophyll').text((latestData.chlorophyll || 12.5).toFixed(1) + ' μg/L');
+    $('#transparency').text((latestData.transparency || 35) + ' cm');
+    $('#salinity').text((latestData.salinity || 0.5).toFixed(1) + ' ‰');
+    
+    // 根据数值范围更新徽章颜色
+    updateBadgeColors(latestData);
+}
+
+// 更新徽章颜色
+function updateBadgeColors(data) {
+    // 溶解氧颜色
+    if (data.dissolved_oxygen < 3.5) {
+        $('#do').removeClass('bg-primary bg-success bg-warning').addClass('bg-danger');
+    } else if (data.dissolved_oxygen < 4.5) {
+        $('#do').removeClass('bg-primary bg-success bg-danger').addClass('bg-warning');
+    } else {
+        $('#do').removeClass('bg-warning bg-danger').addClass('bg-success');
+    }
+    
+    // 温度颜色
+    if (data.temperature < 18 || data.temperature > 32) {
+        $('#temp').removeClass('bg-primary bg-info bg-warning').addClass('bg-danger');
+    } else if (data.temperature < 22 || data.temperature > 28) {
+        $('#temp').removeClass('bg-primary bg-info bg-danger').addClass('bg-warning');
+    } else {
+        $('#temp').removeClass('bg-warning bg-danger').addClass('bg-info');
+    }
+    
+    // pH值颜色
+    if (data.ph < 6.5 || data.ph > 8.5) {
+        $('#ph').removeClass('bg-primary bg-success bg-warning').addClass('bg-danger');
+    } else if (data.ph < 7.0 || data.ph > 8.0) {
+        $('#ph').removeClass('bg-primary bg-success bg-danger').addClass('bg-warning');
+    } else {
+        $('#ph').removeClass('bg-warning bg-danger').addClass('bg-success');
+    }
+    
+    // 氨氮颜色
+    if (data.ammonia > 0.6) {
+        $('#ammonia').removeClass('bg-primary bg-success bg-warning').addClass('bg-danger');
+    } else if (data.ammonia > 0.4) {
+        $('#ammonia').removeClass('bg-primary bg-success bg-danger').addClass('bg-warning');
+    } else {
+        $('#ammonia').removeClass('bg-warning bg-danger').addClass('bg-success');
+    }
+}
+
+// 更新事件时间线
+function updateEventsTimeline(events) {
+    var timeline = $('#eventsTimeline');
+    
+    if (events.length === 0) {
+        timeline.html('<div class="text-center text-muted">暂无关键事件记录</div>');
+        return;
+    }
+    
+    var html = '<div class="timeline">';
+    events.forEach(function(event) {
+        var date = new Date(event.timestamp);
+        var iconClass = event.type === 'feeding' ? 'fa-utensils' : 'fa-tint';
+        var iconColor = event.type === 'feeding' ? 'text-primary' : 'text-info';
+        
+        html += `
+            <div class="timeline-item">
+                <div class="timeline-marker">
+                    <i class="fas ${iconClass} ${iconColor}"></i>
+                </div>
+                <div class="timeline-content">
+                    <h6>${event.title}</h6>
+                    <p class="mb-1">${date.toLocaleString('zh-CN')}</p>
+                    ${event.amount ? '<p class="mb-0">投喂量: ' + event.amount + ' kg</p>' : ''}
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    timeline.html(html);
+}
+
+// 切换塘口
+function changePond() {
+    currentPondId = $('#pondSelect').val();
+    loadWaterQualityData();
+}
+
+// 切换时间范围
+function changeTimeRange() {
+    loadWaterQualityData();
+}
+
+// 切换对比模式
+function toggleCompare() {
+    compareMode = $('#compareYesterday').prop('checked');
+    loadWaterQualityData();
+}
+
+// 切换自动刷新
+function toggleAutoRefresh() {
+    if ($('#autoRefresh').prop('checked')) {
+        startAutoRefresh();
+    } else {
+        stopAutoRefresh();
+    }
+}
+
+// 开始自动刷新
+function startAutoRefresh() {
+    stopAutoRefresh(); // 先停止现有的定时器
+    autoRefreshInterval = setInterval(loadWaterQualityData, 5 * 60 * 1000); // 5分钟刷新一次
+}
+
+// 停止自动刷新
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+}
+
+// 导出数据
+function exportData() {
+    var format = $('#exportFormat').val();
+    var days = $('#exportDays').val();
+    
+    var url = '/data/export?format=' + format + '&days=' + days;
+    if (currentPondId) {
+        url += '&pond_id=' + currentPondId;
+    }
+    
+    // 打开下载链接
+    window.open(url, '_blank');
+    
+    showToast('数据导出已开始', 'success');
+}
+
+// 打印数据
+function printData() {
+    window.print();
+    showToast('打印对话框已打开', 'success');
+}
+</script>
+
+<style>
+/* 时间线样式 */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -25px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #e9ecef;
+}
+
+.timeline-content {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+/* 打印样式 */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .btn {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

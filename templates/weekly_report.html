@@ -1,0 +1,632 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Weekly Report') }} - 渔智汇{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ _('Weekly Report') }}</h2>
+    <div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Home') }}
+        </a>
+    </div>
+</div>
+
+<!-- 周报选择 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <label for="weekSelect" class="form-label">{{ _('Select Weekly Report') }}</label>
+                        <select class="form-select" id="weekSelect" onchange="changeWeek()">
+                            {% for week in weeks %}
+                            <option value="{{ week.id }}" {% if week.id == selected_week_id %}selected{% endif %}>
+                                {{ week.start_date }} - {{ week.end_date }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="pondFilter" class="form-label">{{ _('Pond Filter') }}</label>
+                        <select class="form-select" id="pondFilter" onchange="filterPonds()">
+                            <option value="all">{{ _('All Ponds') }}</option>
+                            {% for pond in ponds %}
+                            <option value="{{ pond.id }}">{{ pond.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button class="btn btn-primary" onclick="generateReport()">
+                                <i class="fas fa-sync-alt me-1"></i>{{ _('Refresh Data') }}
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportReport()">
+                                <i class="fas fa-download me-1"></i>{{ _('Export PDF') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 周报概览 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">周报概览</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-primary" id="totalFeeding">--</div>
+                            <div class="data-label">总投喂量(kg)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-success" id="avgDo">--</div>
+                            <div class="data-label">平均溶解氧(mg/L)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-info" id="avgTemp">--</div>
+                            <div class="data-label">平均温度(°C)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-warning" id="alertCount">--</div>
+                            <div class="data-label">预警次数</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-primary" id="feedConversion">--</div>
+                            <div class="data-label">饲料系数</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-success" id="growthRate">--</div>
+                            <div class="data-label">生长速率</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-info" id="survivalRate">--</div>
+                            <div class="data-label">成活率(%)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-warning" id="costPerKg">--</div>
+                            <div class="data-label">单位成本(元/kg)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 周报图表 -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">投喂量趋势</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="feedingTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">水质稳定性</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="waterQualityStabilityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">塘口对比</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="pondComparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">预警分析</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="alertAnalysisChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 周报总结 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">周报总结</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>本周亮点</h6>
+                        <ul id="weeklyHighlights">
+                            <li>水质稳定性较上周提升<span class="text-success">15%</span></li>
+                            <li>饲料系数降低至<span class="text-success">1.5</span>，达到行业领先水平</li>
+                            <li>预警响应时间缩短至<span class="text-success">10分钟</span>内</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>改进建议</h6>
+                        <ul id="improvementSuggestions">
+                            <li>建议在夜间增加溶解氧监测频率</li>
+                            <li>可考虑调整投喂时间，提高饲料利用率</li>
+                            <li>建议定期清理塘底，减少氨氮积累</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>下周计划</h6>
+                        <div id="nextWeekPlan">
+                            <p>基于本周数据分析，下周计划如下：</p>
+                            <ol>
+                                <li>优化1号塘投喂策略，预计可节省饲料成本<span class="text-primary">5%</span></li>
+                                <li>加强2号塘水质监测，预防潜在风险</li>
+                                <li>对3号塘进行水质调节，提高生长环境质量</li>
+                                <li>整体目标：将饲料系数控制在<span class="text-primary">1.45</span>以下</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 详细数据表格 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">详细数据</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="weeklyDataTable">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>塘口</th>
+                                <th>投喂量(kg)</th>
+                                <th>平均溶解氧(mg/L)</th>
+                                <th>平均温度(°C)</th>
+                                <th>平均pH值</th>
+                                <th>平均氨氮(mg/L)</th>
+                                <th>预警次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="8" class="text-center">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示消息容器 -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var feedingTrendChart, waterQualityStabilityChart, pondComparisonChart, alertAnalysisChart;
+var currentWeekId = {{ selected_week_id }};
+
+$(document).ready(function() {
+    // 初始化图表
+    initCharts();
+    
+    // 生成周报
+    generateReport();
+});
+
+// 初始化图表
+function initCharts() {
+    var chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                }
+            },
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    };
+    
+    // 投喂量趋势图表
+    var feedingTrendCtx = document.getElementById('feedingTrendChart').getContext('2d');
+    feedingTrendChart = new Chart(feedingTrendCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: chartOptions
+    });
+    
+    // 水质稳定性图表
+    var waterQualityStabilityCtx = document.getElementById('waterQualityStabilityChart').getContext('2d');
+    waterQualityStabilityChart = new Chart(waterQualityStabilityCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: chartOptions
+    });
+    
+    // 塘口对比图表
+    var pondComparisonCtx = document.getElementById('pondComparisonChart').getContext('2d');
+    pondComparisonChart = new Chart(pondComparisonCtx, {
+        type: 'radar',
+        data: {
+            labels: ['投喂效率', '水质稳定性', '预警次数', '生长速度', '饲料系数'],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+    // 预警分析图表
+    var alertAnalysisCtx = document.getElementById('alertAnalysisChart').getContext('2d');
+    alertAnalysisChart = new Chart(alertAnalysisCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: chartOptions
+    });
+}
+
+// 生成周报
+function generateReport() {
+    var weekId = $('#weekSelect').val();
+    var pondFilter = $('#pondFilter').val();
+    
+    // 显示加载状态
+    showLoadingState();
+    
+    // 模拟API调用
+    setTimeout(function() {
+        // 生成模拟数据
+        var reportData = generateMockReportData(weekId, pondFilter);
+        
+        // 更新概览数据
+        updateOverview(reportData);
+        
+        // 更新图表
+        updateCharts(reportData);
+        
+        // 更新表格
+        updateTable(reportData);
+        
+        // 隐藏加载状态
+        hideLoadingState();
+        
+        showToast('周报生成成功', 'success');
+    }, 1000);
+}
+
+// 生成模拟周报数据
+function generateMockReportData(weekId, pondFilter) {
+    // 生成日期标签（7天）
+    var labels = [];
+    var today = new Date();
+    
+    for (var i = 6; i >= 0; i--) {
+        var date = new Date(today);
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }));
+    }
+    
+    // 生成投喂量数据
+    var feedingData = labels.map(() => Math.floor(Math.random() * 50) + 30);
+    
+    // 生成水质数据
+    var doData = labels.map(() => Math.random() * 2 + 4.5);
+    var tempData = labels.map(() => Math.random() * 5 + 22);
+    var phData = labels.map(() => Math.random() * 0.5 + 7.5);
+    var ammoniaData = labels.map(() => Math.random() * 0.3 + 0.1);
+    
+    // 生成塘口对比数据
+    var pondData = [];
+    if (pondFilter === 'all') {
+        pondData = [
+            {
+                label: '1号塘',
+                data: [85, 78, 92, 88, 76, 82, 90]
+            },
+            {
+                label: '2号塘',
+                data: [75, 82, 78, 85, 80, 77, 83]
+            },
+            {
+                label: '3号塘',
+                data: [90, 88, 85, 92, 87, 89, 91]
+            }
+        ];
+    } else {
+        pondData = [
+            {
+                label: '当前塘口',
+                data: [85, 78, 92, 88, 76, 82, 90]
+            }
+        ];
+    }
+    
+    // 生成预警分析数据
+    var alertData = [
+        Math.floor(Math.random() * 10) + 5,
+        Math.floor(Math.random() * 5) + 2,
+        Math.floor(Math.random() * 8) + 3,
+        Math.floor(Math.random() * 6) + 2,
+        Math.floor(Math.random() * 7) + 4,
+        Math.floor(Math.random() * 4) + 1,
+        Math.floor(Math.random() * 9) + 3
+    ];
+    
+    // 生成详细表格数据
+    var tableData = [];
+    for (var i = 0; i < 7; i++) {
+        var date = new Date(today);
+        date.setDate(date.getDate() - (6 - i));
+        
+        for (var j = 0; j < 3; j++) {
+            tableData.push({
+                date: date.toLocaleDateString('zh-CN'),
+                pond: (j + 1) + '号塘',
+                feeding: Math.floor(Math.random() * 50) + 30,
+                do: (Math.random() * 2 + 4.5).toFixed(1),
+                temp: (Math.random() * 5 + 22).toFixed(1),
+                ph: (Math.random() * 0.5 + 7.5).toFixed(1),
+                ammonia: (Math.random() * 0.3 + 0.1).toFixed(2),
+                alerts: Math.floor(Math.random() * 3)
+            });
+        }
+    }
+    
+    return {
+        labels: labels,
+        feedingData: feedingData,
+        doData: doData,
+        tempData: tempData,
+        phData: phData,
+        ammoniaData: ammoniaData,
+        pondData: pondData,
+        alertData: alertData,
+        tableData: tableData,
+        totalFeeding: feedingData.reduce((sum, val) => sum + val, 0),
+        avgDo: (doData.reduce((sum, val) => sum + val, 0) / doData.length).toFixed(1),
+        avgTemp: (tempData.reduce((sum, val) => sum + val, 0) / tempData.length).toFixed(1),
+        alertCount: alertData.reduce((sum, val) => sum + val, 0),
+        feedConversion: (Math.random() * 0.3 + 1.3).toFixed(2),
+        growthRate: (Math.random() * 0.5 + 1.5).toFixed(2),
+        survivalRate: (Math.random() * 5 + 92).toFixed(1),
+        costPerKg: (Math.random() * 2 + 8).toFixed(1)
+    };
+}
+
+// 更新概览数据
+function updateOverview(data) {
+    $('#totalFeeding').text(data.totalFeeding);
+    $('#avgDo').text(data.avgDo);
+    $('#avgTemp').text(data.avgTemp);
+    $('#alertCount').text(data.alertCount);
+    $('#feedConversion').text(data.feedConversion);
+    $('#growthRate').text(data.growthRate);
+    $('#survivalRate').text(data.survivalRate);
+    $('#costPerKg').text(data.costPerKg);
+}
+
+// 更新图表
+function updateCharts(data) {
+    // 更新投喂量趋势图表
+    feedingTrendChart.data.labels = data.labels;
+    feedingTrendChart.data.datasets = [{
+        label: '投喂量 (kg)',
+        data: data.feedingData,
+        borderColor: '#1890FF',
+        backgroundColor: 'rgba(24, 144, 255, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+    }];
+    feedingTrendChart.update();
+    
+    // 更新水质稳定性图表
+    waterQualityStabilityChart.data.labels = data.labels;
+    waterQualityStabilityChart.data.datasets = [
+        {
+            label: '溶解氧 (mg/L)',
+            data: data.doData,
+            borderColor: '#1890FF',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.4
+        },
+        {
+            label: '温度 (°C)',
+            data: data.tempData,
+            borderColor: '#FA8C16',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.4
+        }
+    ];
+    waterQualityStabilityChart.update();
+    
+    // 更新塘口对比图表
+    pondComparisonChart.data.datasets = data.pondData;
+    pondComparisonChart.update();
+    
+    // 更新预警分析图表
+    alertAnalysisChart.data.labels = data.labels;
+    alertAnalysisChart.data.datasets = [{
+        label: '预警次数',
+        data: data.alertData,
+        backgroundColor: 'rgba(245, 34, 45, 0.6)',
+        borderColor: '#F5222D',
+        borderWidth: 1
+    }];
+    alertAnalysisChart.update();
+}
+
+// 更新表格
+function updateTable(data) {
+    var tbody = $('#weeklyDataTable tbody');
+    tbody.empty();
+    
+    data.tableData.forEach(function(row) {
+        tbody.append(`
+            <tr>
+                <td>${row.date}</td>
+                <td>${row.pond}</td>
+                <td>${row.feeding}</td>
+                <td>${row.do}</td>
+                <td>${row.temp}</td>
+                <td>${row.ph}</td>
+                <td>${row.ammonia}</td>
+                <td>${row.alerts}</td>
+            </tr>
+        `);
+    });
+}
+
+// 显示加载状态
+function showLoadingState() {
+    // 显示加载动画
+    $('#weeklyDataTable tbody').html('<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</td></tr>');
+}
+
+// 隐藏加载状态
+function hideLoadingState() {
+    // 加载动画会在updateTable中被替换
+}
+
+// 切换周报
+function changeWeek() {
+    currentWeekId = $('#weekSelect').val();
+    generateReport();
+}
+
+// 筛选塘口
+function filterPonds() {
+    generateReport();
+}
+
+// 导出周报
+function exportReport() {
+    var weekId = $('#weekSelect').val();
+    var pondFilter = $('#pondFilter').val();
+    
+    // 构建导出URL
+    var url = '/decision/export_weekly_report?week_id=' + weekId;
+    if (pondFilter !== 'all') {
+        url += '&pond_id=' + pondFilter;
+    }
+    
+    // 打开下载链接
+    window.open(url, '_blank');
+    
+    showToast('周报导出已开始', 'success');
+}
+</script>
+
+<style>
+/* 打印样式 */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+    
+    .btn {
+        display: none !important;
+    }
+    
+    .table {
+        font-size: 12px;
+    }
+}
+</style>
+{% endblock %}

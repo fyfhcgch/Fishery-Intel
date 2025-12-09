@@ -1,0 +1,318 @@
+# Chinese translations for fish farm application
+# Copyright (C) 2024 Fish Smart Hub
+# This file is distributed under the same license as the fish farm application.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fish farm 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-09 15:00+0800\n"
+"PO-Revision-Date: 2024-12-09 15:00+0800\n"
+"Last-Translator: Fish Smart Hub <support@fishsmarthub.com>\n"
+"Language-Team: Chinese <zh@fishsmarthub.com>\n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# Base template
+msgid "Fish Smart Hub - Smart Aquaculture Management Platform"
+msgstr "渔智汇 - 智慧水产养殖管理平台"
+
+# Navigation
+msgid "Dashboard"
+msgstr "仪表板"
+
+msgid "Data Management"
+msgstr "数据管理"
+
+msgid "Data Visualization"
+msgstr "数据可视化"
+
+msgid "Alerts & Notifications"
+msgstr "预警与通知"
+
+msgid "Decision Support"
+msgstr "决策支持"
+
+msgid "Weekly Report"
+msgstr "周报"
+
+msgid "Profile"
+msgstr "个人资料"
+
+# Common
+msgid "Back to Home"
+msgstr "返回首页"
+
+msgid "Loading..."
+msgstr "加载中..."
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Refresh"
+msgstr "刷新"
+
+msgid "Time"
+msgstr "时间"
+
+msgid "Pond"
+msgstr "塘口"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Level"
+msgstr "级别"
+
+msgid "Title"
+msgstr "标题"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Actions"
+msgstr "操作"
+
+# Alerts page
+msgid "Alerts Statistics"
+msgstr "预警统计"
+
+msgid "Active Alerts"
+msgstr "活跃预警"
+
+msgid "Warning Level"
+msgstr "警告级别"
+
+msgid "Info Level"
+msgstr "信息级别"
+
+msgid "Resolved Today"
+msgstr "今日已解决"
+
+msgid "Alert Level"
+msgstr "预警级别"
+
+msgid "All Levels"
+msgstr "所有级别"
+
+msgid "Danger"
+msgstr "危险"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Info"
+msgstr "信息"
+
+msgid "All Status"
+msgstr "所有状态"
+
+msgid "Active"
+msgstr "活跃"
+
+msgid "Resolved"
+msgstr "已解决"
+
+msgid "All Ponds"
+msgstr "所有塘口"
+
+msgid "Mark All as Resolved"
+msgstr "全部标记已解决"
+
+msgid "Alert History"
+msgstr "预警历史"
+
+msgid "Alert Settings"
+msgstr "预警设置"
+
+msgid "Alert Threshold Settings"
+msgstr "预警阈值设置"
+
+msgid "Dissolved Oxygen Threshold (mg/L)"
+msgstr "溶解氧阈值 (mg/L)"
+
+msgid "Temperature Threshold (°C)"
+msgstr "温度阈值 (°C)"
+
+msgid "pH Threshold Range"
+msgstr "pH阈值范围"
+
+msgid "Minimum"
+msgstr "最小值"
+
+msgid "Maximum"
+msgstr "最大值"
+
+msgid "Ammonia Threshold (mg/L)"
+msgstr "氨氮阈值 (mg/L)"
+
+msgid "Notification Settings"
+msgstr "通知设置"
+
+msgid "Enable SMS Alerts"
+msgstr "启用短信通知"
+
+msgid "Enable Email Alerts"
+msgstr "启用邮件通知"
+
+msgid "Enable Push Alerts"
+msgstr "启用推送通知"
+
+msgid "Alert Frequency"
+msgstr "预警频率"
+
+msgid "Save Notification Settings"
+msgstr "保存通知设置"
+
+# Dashboard page
+msgid "Urgent Alert"
+msgstr "紧急预警"
+
+msgid "Pond Overview"
+msgstr "塘口总览"
+
+msgid "High Contrast"
+msgstr "高对比度"
+
+msgid "Large Font"
+msgstr "大字体"
+
+msgid "Total Ponds"
+msgstr "塘口总数"
+
+msgid "Today's Feeding Suggestion"
+msgstr "今日建议投喂量"
+
+msgid "Water Quality Score"
+msgstr "水质评分"
+
+msgid "Water Quality Dashboard"
+msgstr "水质仪表盘"
+
+msgid "Refresh Data"
+msgstr "刷新数据"
+
+msgid "Today's Weather"
+msgstr "今日天气"
+
+msgid "Humidity"
+msgstr "湿度"
+
+msgid "Wind"
+msgstr "风力"
+
+msgid "Feeding Calendar"
+msgstr "投喂日历"
+
+# Data page
+msgid "Real-time Data"
+msgstr "实时数据"
+
+msgid "Pond ECG Chart"
+msgstr "塘口心电图"
+
+msgid "Select Pond"
+msgstr "选择塘口"
+
+msgid "Time Range"
+msgstr "时间范围"
+
+msgid "Last 24 Hours"
+msgstr "最近24小时"
+
+msgid "Last 7 Days"
+msgstr "最近7天"
+
+msgid "Data Comparison"
+msgstr "数据对比"
+
+msgid "Overlay Yesterday's Data"
+msgstr "叠加昨日同期数据"
+
+msgid "Auto Refresh"
+msgstr "自动刷新"
+
+# Data Visualization page
+msgid "Report Type"
+msgstr "报表类型"
+
+msgid "Daily"
+msgstr "日报"
+
+msgid "Weekly"
+msgstr "周报"
+
+msgid "Monthly"
+msgstr "月报"
+
+msgid "Date Range"
+msgstr "日期范围"
+
+msgid "Pond Filter"
+msgstr "塘口筛选"
+
+msgid "Generate Report"
+msgstr "生成报表"
+
+# Decision page
+msgid "Decision Center"
+msgstr "决策中心"
+
+msgid "AI Aquaculture Brain"
+msgstr "AI养殖大脑"
+
+msgid "Get Today's Feeding Plan"
+msgstr "获取今日投喂方案"
+
+msgid "Historical Decisions"
+msgstr "历史决策"
+
+# Weekly Report page
+msgid "Select Weekly Report"
+msgstr "选择周报"
+
+msgid "Export PDF"
+msgstr "导出PDF"
+
+# Profile page
+msgid "Preferences"
+msgstr "偏好设置"
+
+msgid "High Contrast Mode"
+msgstr "高对比度模式"
+
+msgid "Large Font Mode"
+msgstr "大字体模式"
+
+msgid "Dark Mode"
+msgstr "深色模式"
+
+# Pond detail page
+msgid "Back to Overview"
+msgstr "返回总览"
+
+# JavaScript text
+msgid "years ago"
+msgstr "年前"
+
+msgid "months ago"
+msgstr "个月前"
+
+msgid "days ago"
+msgstr "天前"
+
+msgid "hours ago"
+msgstr "小时前"
+
+msgid "minutes ago"
+msgstr "分钟前"
+
+msgid "just now"
+msgstr "刚刚"
+
+# Navigation
+msgid "Logout"
+msgstr "退出登录"

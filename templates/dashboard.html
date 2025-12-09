@@ -1,0 +1,804 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Dashboard') }} - 渔智汇{% endblock %}
+
+{% block content %}
+<!-- 全局预警区域 -->
+{% if active_alerts and active_alerts|length > 0 %}
+<div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <div>
+            <strong>{{ _('Urgent Alert') }}:</strong>
+            {% for alert in active_alerts[:1] %}
+                {% if alert.pond %}
+                    {{ alert.pond.name }} - {{ alert.title }}
+                {% else %}
+                    {{ alert.title }}
+                {% endif %}
+            {% endfor %}
+        </div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>{{ _('Pond Overview') }}</h2>
+            <div>
+                <button class="btn btn-outline-primary" onclick="toggleHighContrast()">
+                    <i class="fas fa-adjust"></i> {{ _('High Contrast') }}
+                </button>
+                <button class="btn btn-outline-primary ms-2" onclick="toggleLargeFont()">
+                    <i class="fas fa-text-height"></i> {{ _('Large Font') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 今日关键指标 -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-primary">{{ ponds|length }}</div>
+                <div class="data-label">{{ _('Total Ponds') }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-success">
+                    {% if feeding_suggestions %}
+                    {% set total = feeding_suggestions.values() | sum %}
+                    {{ total }} kg
+                    {% else %}
+                    0 kg
+                    {% endif %}
+                </div>
+                <div class="data-label">{{ _('Today\'s Feeding Suggestion') }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-info">92/100</div>
+                <div class="data-label">{{ _('Water Quality Score') }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="card data-card h-100">
+            <div class="card-body">
+                <div class="data-value text-warning">{{ active_alerts|length }}</div>
+                <div class="data-label">{{ _('Active Alerts') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 水质仪表盘和天气信息 -->
+<div class="row mb-4">
+    <div class="col-lg-8 col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <h5 class="mb-0">{{ _('Water Quality Dashboard') }}</h5>
+                    <div class="d-flex align-items-center mt-2 mt-md-0">
+                        <select id="pond-selector" class="form-select me-2" style="width: auto;">
+                            {% for pond in ponds %}
+                            <option value="{{ pond.id }}"{% if loop.first %} selected{% endif %}>{{ pond.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button id="refresh-data" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-sync-alt"></i> {{ _('Refresh Data') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- 单个塘口详细显示容器 -->
+                <div id="single-pond-container">
+                    <!-- 塘口详细信息将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-12 mb-3">
+        <div class="weather-card mb-3">
+            <h5 class="mb-3">{{ _('Today\'s Weather') }}</h5>
+            <div class="weather-temp">{{ weather.temperature }}°C</div>
+            <div class="weather-condition">{{ weather.condition }}</div>
+            <div class="weather-details">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ _('Humidity') }}</span>
+                    <span>{{ weather.humidity }}%</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ _('Wind') }}</span>
+                    <span>{{ weather.wind }}</span>
+                </div>
+                <div class="mt-3 p-2 bg-white bg-opacity-25 rounded">
+                    <i class="fas fa-lightbulb me-1"></i> {{ weather.forecast }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{{ _('Feeding Calendar') }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="feeding-calendar" id="feeding-calendar">
+                    <!-- 日历将通过JavaScript生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 最近活动 -->
+<div class="row">
+    <div class="col-lg-6 col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">最近投喂记录</h5>
+                <a href="#" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body">
+                {% if recent_feedings %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>塘口</th>
+                                <th>投喂量</th>
+                                <th>时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for feeding in recent_feedings[:5] %}
+                            <tr>
+                                <td>{{ feeding.pond.name }}</td>
+                                <td>{{ feeding.amount }} kg</td>
+                                <td>{{ feeding.time.strftime('%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">暂无投喂记录</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">最新预警</h5>
+                <a href="{{ url_for('alert.alerts') }}" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body">
+                {% if active_alerts %}
+                {% for alert in active_alerts[:5] %}
+                <div class="alert alert-{{ 'danger' if alert.level == 'danger' else 'warning' if alert.level == 'warning' else 'info' }} alert-dismissible fade show" role="alert" id="alert-{{ alert.id }}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>{{ alert.pond.name }} - {{ alert.title }}</strong>
+                            <div class="small">{{ alert.message }}</div>
+                            <div class="small text-muted">{{ alert.timestamp.strftime('%m-%d %H:%M') }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="resolveAlert({{ alert.id }})">
+                            标记已解决
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">暂无活跃预警</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示消息容器 -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // 生成投喂日历
+    generateFeedingCalendar();
+    
+    // 页面加载时显示第一个塘口的详细信息
+    const firstPondId = $('#pond-selector option:first').val();
+    loadSinglePondDetails(firstPondId);
+    
+    // 塘口切换功能
+    $('#pond-selector').on('change', function() {
+        const selectedPondId = $(this).val();
+        loadSinglePondDetails(selectedPondId);
+    });
+    
+    // 刷新数据按钮
+    $('#refresh-data').on('click', function() {
+        const selectedPondId = $('#pond-selector').val();
+        loadSinglePondDetails(selectedPondId);
+    });
+});
+
+// 加载单个塘口详细信息
+function loadSinglePondDetails(pondId) {
+    // 获取塘口数据
+    const pondData = getPondData(pondId);
+    
+    if (!pondData) {
+        $('#single-pond-container').html('<p class="text-center text-muted">无法获取塘口数据</p>');
+        return;
+    }
+    
+    // 构建塘口详细显示HTML
+    let pondHtml = `
+        <div class="pond-status-card">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="pond-name">
+                        <span class="status-indicator ${pondData.hasAlert ? 'danger' : 'normal'}"></span>
+                        ${pondData.name}
+                    </div>
+                    <div class="pond-species">${pondData.species} (${pondData.area}亩)</div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+                            <div class="water-quality-indicator">
+                                <canvas id="do-gauge-${pondId}" width="150" height="150"></canvas>
+                            </div>
+                            <div class="text-center">
+                                <small>溶解氧 (mg/L)</small>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+                            <div class="water-quality-indicator">
+                                <canvas id="temp-gauge-${pondId}" width="150" height="150"></canvas>
+                            </div>
+                            <div class="text-center">
+                                <small>温度 (°C)</small>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+                            <div class="water-quality-indicator">
+                                <canvas id="ph-gauge-${pondId}" width="150" height="150"></canvas>
+                            </div>
+                            <div class="text-center">
+                                <small>pH值</small>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+                            <div class="water-quality-indicator">
+                                <canvas id="ammonia-gauge-${pondId}" width="150" height="150"></canvas>
+                            </div>
+                            <div class="text-center">
+                                <small>氨氮 (mg/L)</small>
+                            </div>
+                        </div>
+                    </div>
+                
+                <div class="row mt-3">
+                    <div class="col-lg-6 col-md-12">
+                        <h6>水质指标</h6>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                <div class="d-flex justify-content-between">
+                                    <span>浊度:</span>
+                                    <span class="turbidity-value">${pondData.turbidity || '-'} NTU</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                <div class="d-flex justify-content-between">
+                                    <span>电导率:</span>
+                                    <span class="conductivity-value">${pondData.conductivity || '-'} μS/cm</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6 mt-2 mt-lg-0">
+                                <div class="d-flex justify-content-between">
+                                    <span>液位:</span>
+                                    <span class="water-level-value">${pondData.waterLevel || '-'} m</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>化学需氧量:</span>
+                                    <span class="cod-value">${pondData.cod || '-'} mg/L</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>重金属:</span>
+                                    <span class="heavy-metals-value">${pondData.heavyMetals || '-'} μg/L</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>余氯:</span>
+                                    <span class="residual-chlorine-value">${pondData.residualChlorine || '-'} mg/L</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12 mt-3 mt-lg-0">
+                        <h6>其他指标</h6>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                <div class="d-flex justify-content-between">
+                                    <span>总磷(TP):</span>
+                                    <span class="total-phosphorus-value">${pondData.totalPhosphorus || '-'} mg/L</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                <div class="d-flex justify-content-between">
+                                    <span>总氮(TN):</span>
+                                    <span class="total-nitrogen-value">${pondData.totalNitrogen || '-'} mg/L</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6 mt-2 mt-lg-0">
+                                <div class="d-flex justify-content-between">
+                                    <span>总大肠菌群:</span>
+                                    <span class="coliform-value">${pondData.coliform || '-'} 个/L</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>藻类:</span>
+                                    <span class="algae-value">${pondData.algae || '-'} 个/mL</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-6 mt-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>生物毒性:</span>
+                                    <span class="biotoxicity-value">${pondData.biotoxicity || '-'} %</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted timestamp">
+                        更新时间: ${pondData.timestamp}
+                    </small>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-12">
+                <div class="text-center mt-4 mt-lg-0">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">快速操作</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" onclick="recordFeeding(${pondId})">
+                                    <i class="fas fa-utensils me-2"></i>记录投喂
+                                </button>
+                                <button class="btn btn-outline-success" onclick="testWaterQuality(${pondId})">
+                                    <i class="fas fa-tint me-2"></i>水质检测
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="setAlert(${pondId})">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>设置预警
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 更新单个塘口显示
+    $('#single-pond-container').html(pondHtml);
+    
+    // 创建仪表盘
+    setTimeout(function() {
+        createWaterQualityGauge(
+            `do-gauge-${pondId}`, 
+            pondData.dissolvedOxygen, 
+            0, 10, 4.5, 3.5, 
+            pondData.dissolvedOxygen
+        );
+        
+        createWaterQualityGauge(
+            `temp-gauge-${pondId}`, 
+            pondData.temperature, 
+            10, 40, 30, 35, 
+            pondData.temperature + '°C'
+        );
+        
+        createWaterQualityGauge(
+            `ph-gauge-${pondId}`, 
+            pondData.ph, 
+            6, 9, 7.5, 7.0, 
+            pondData.ph
+        );
+        
+        createWaterQualityGauge(
+            `ammonia-gauge-${pondId}`, 
+            pondData.ammonia, 
+            0, 2, 0.5, 1.0, 
+            pondData.ammonia
+        );
+    }, 100);
+}
+
+// 获取塘口数据
+function getPondData(pondId) {
+    // 从页面数据中获取塘口信息
+    {% for pond in ponds %}
+    if ({{ pond.id }} == pondId) {
+        return {
+            id: {{ pond.id }},
+            name: '{{ pond.name }}',
+            species: '{{ pond.species }}',
+            area: {{ pond.area }},
+            hasAlert: {% if active_alerts and active_alerts|selectattr('pond_id', 'equalto', pond.id)|list|length > 0 %}true{% else %}false{% endif %},
+            dissolvedOxygen: {{ latest_water_quality[pond.id].dissolved_oxygen if latest_water_quality[pond.id] else 0 }},
+            temperature: {{ latest_water_quality[pond.id].temperature if latest_water_quality[pond.id] else 0 }},
+            ph: {{ latest_water_quality[pond.id].ph if latest_water_quality[pond.id] else 7 }},
+            ammonia: {{ latest_water_quality[pond.id].ammonia if latest_water_quality[pond.id] else 0 }},
+            turbidity: {{ latest_water_quality[pond.id].turbidity if latest_water_quality[pond.id] and latest_water_quality[pond.id].turbidity is not none else 'null' }},
+            conductivity: {{ latest_water_quality[pond.id].conductivity if latest_water_quality[pond.id] and latest_water_quality[pond.id].conductivity is not none else 'null' }},
+            waterLevel: {{ latest_water_quality[pond.id].water_level if latest_water_quality[pond.id] and latest_water_quality[pond.id].water_level is not none else 'null' }},
+            cod: {{ latest_water_quality[pond.id].cod if latest_water_quality[pond.id] and latest_water_quality[pond.id].cod is not none else 'null' }},
+            heavyMetals: {{ latest_water_quality[pond.id].heavy_metals if latest_water_quality[pond.id] and latest_water_quality[pond.id].heavy_metals is not none else 'null' }},
+            residualChlorine: {{ latest_water_quality[pond.id].residual_chlorine if latest_water_quality[pond.id] and latest_water_quality[pond.id].residual_chlorine is not none else 'null' }},
+            totalPhosphorus: {{ latest_water_quality[pond.id].total_phosphorus if latest_water_quality[pond.id] and latest_water_quality[pond.id].total_phosphorus is not none else 'null' }},
+            totalNitrogen: {{ latest_water_quality[pond.id].total_nitrogen if latest_water_quality[pond.id] and latest_water_quality[pond.id].total_nitrogen is not none else 'null' }},
+            coliform: {{ latest_water_quality[pond.id].coliform if latest_water_quality[pond.id] and latest_water_quality[pond.id].coliform is not none else 'null' }},
+            algae: {{ latest_water_quality[pond.id].algae if latest_water_quality[pond.id] and latest_water_quality[pond.id].algae is not none else 'null' }},
+            biotoxicity: {{ latest_water_quality[pond.id].biotoxicity if latest_water_quality[pond.id] and latest_water_quality[pond.id].biotoxicity is not none else 'null' }},
+            timestamp: '{{ latest_water_quality[pond.id].timestamp.strftime('%H:%M') if latest_water_quality[pond.id] else '-' }}'
+        };
+    }
+    {% endfor %}
+    return null;
+}
+
+// 记录投喂
+function recordFeeding(pondId) {
+    // 创建模态框用于记录投喂
+    const modalHtml = `
+        <div class="modal fade" id="feedingModal" tabindex="-1" aria-labelledby="feedingModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="feedingModalLabel">记录投喂</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="feeding-form">
+                            <div class="mb-3">
+                                <label for="feeding-amount" class="form-label">投喂量 (kg)</label>
+                                <input type="number" step="0.1" class="form-control" id="feeding-amount" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="feeding-type" class="form-label">饲料类型</label>
+                                <select class="form-select" id="feeding-type">
+                                    <option value="普通饲料">普通饲料</option>
+                                    <option value="膨化饲料">膨化饲料</option>
+                                    <option value="颗粒饲料">颗粒饲料</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="feeding-notes" class="form-label">备注</label>
+                                <textarea class="form-control" id="feeding-notes" rows="2"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="saveFeedingRecord(${pondId})">保存记录</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 如果模态框已存在，先移除
+    $('#feedingModal').remove();
+    
+    // 添加模态框到页面
+    $('body').append(modalHtml);
+    
+    // 显示模态框
+    const modal = new bootstrap.Modal(document.getElementById('feedingModal'));
+    modal.show();
+}
+
+// 保存投喂记录
+function saveFeedingRecord(pondId) {
+    const amount = $('#feeding-amount').val();
+    const type = $('#feeding-type').val();
+    const notes = $('#feeding-notes').val();
+    
+    if (!amount) {
+        showToast('请输入投喂量', 'warning');
+        return;
+    }
+    
+    // 这里应该发送数据到服务器
+    // 模拟保存成功
+    $('#feedingModal').modal('hide');
+    showToast(`成功记录投喂: ${amount}kg ${type}`, 'success');
+    
+    // 刷新页面数据
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// 水质检测
+function testWaterQuality(pondId) {
+    // 创建模态框用于水质检测
+    const modalHtml = `
+        <div class="modal fade" id="waterTestModal" tabindex="-1" aria-labelledby="waterTestModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="waterTestModalLabel">水质检测记录</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="water-test-form">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="test-temperature" class="form-label">水温 (°C)</label>
+                                    <input type="number" step="0.1" class="form-control" id="test-temperature">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="test-ph" class="form-label">pH值</label>
+                                    <input type="number" step="0.1" class="form-control" id="test-ph">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="test-do" class="form-label">溶解氧 (mg/L)</label>
+                                    <input type="number" step="0.1" class="form-control" id="test-do">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="test-ammonia" class="form-label">氨氮 (mg/L)</label>
+                                    <input type="number" step="0.01" class="form-control" id="test-ammonia">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="test-turbidity" class="form-label">浊度 (NTU)</label>
+                                    <input type="number" step="0.1" class="form-control" id="test-turbidity">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="test-conductivity" class="form-label">电导率 (μS/cm)</label>
+                                    <input type="number" step="1" class="form-control" id="test-conductivity">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="test-notes" class="form-label">备注</label>
+                                <textarea class="form-control" id="test-notes" rows="2"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="saveWaterTestRecord(${pondId})">保存记录</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 如果模态框已存在，先移除
+    $('#waterTestModal').remove();
+    
+    // 添加模态框到页面
+    $('body').append(modalHtml);
+    
+    // 显示模态框
+    const modal = new bootstrap.Modal(document.getElementById('waterTestModal'));
+    modal.show();
+}
+
+// 保存水质检测记录
+function saveWaterTestRecord(pondId) {
+    const testData = {
+        temperature: $('#test-temperature').val(),
+        ph: $('#test-ph').val(),
+        dissolved_oxygen: $('#test-do').val(),
+        ammonia: $('#test-ammonia').val(),
+        turbidity: $('#test-turbidity').val(),
+        conductivity: $('#test-conductivity').val(),
+        notes: $('#test-notes').val()
+    };
+    
+    // 这里应该发送数据到服务器
+    // 模拟保存成功
+    $('#waterTestModal').modal('hide');
+    showToast('水质检测记录已保存', 'success');
+    
+    // 刷新页面数据
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// 设置预警
+function setAlert(pondId) {
+    // 创建模态框用于设置预警
+    const modalHtml = `
+        <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="alertModalLabel">设置预警规则</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="alert-form">
+                            <div class="mb-3">
+                                <label for="alert-type" class="form-label">预警类型</label>
+                                <select class="form-select" id="alert-type">
+                                    <option value="temperature">水温异常</option>
+                                    <option value="ph">pH值异常</option>
+                                    <option value="do">溶解氧过低</option>
+                                    <option value="ammonia">氨氮过高</option>
+                                    <option value="turbidity">浊度异常</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="alert-threshold" class="form-label">预警阈值</label>
+                                <input type="number" step="0.1" class="form-control" id="alert-threshold" required>
+                                <div class="form-text">根据预警类型设置相应的阈值</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="alert-level" class="form-label">预警级别</label>
+                                <select class="form-select" id="alert-level">
+                                    <option value="info">信息</option>
+                                    <option value="warning">警告</option>
+                                    <option value="danger">危险</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="alert-notification" class="form-label">通知方式</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notify-app" checked>
+                                    <label class="form-check-label" for="notify-app">
+                                        应用内通知
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notify-sms">
+                                    <label class="form-check-label" for="notify-sms">
+                                        短信通知
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notify-email">
+                                    <label class="form-check-label" for="notify-email">
+                                        邮件通知
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="saveAlertRule(${pondId})">保存规则</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 如果模态框已存在，先移除
+    $('#alertModal').remove();
+    
+    // 添加模态框到页面
+    $('body').append(modalHtml);
+    
+    // 显示模态框
+    const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+    modal.show();
+}
+
+// 保存预警规则
+function saveAlertRule(pondId) {
+    const alertType = $('#alert-type').val();
+    const threshold = $('#alert-threshold').val();
+    const level = $('#alert-level').val();
+    
+    if (!threshold) {
+        showToast('请输入预警阈值', 'warning');
+        return;
+    }
+    
+    // 这里应该发送数据到服务器
+    // 模拟保存成功
+    $('#alertModal').modal('hide');
+    showToast(`预警规则已设置: ${alertType} 阈值 ${threshold}`, 'success');
+}
+
+// 显示提示消息
+function showToast(message, type = 'info') {
+    const toastHtml = `
+        <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : type === 'danger' ? 'danger' : 'info'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    const toastElement = $(toastHtml);
+    $('#toast-container').append(toastElement);
+    
+    const toast = new bootstrap.Toast(toastElement[0]);
+    toast.show();
+    
+    // 自动移除
+    setTimeout(() => {
+        toastElement.remove();
+    }, 5000);
+}
+
+// 生成投喂日历
+function generateFeedingCalendar() {
+    var calendar = $('#feeding-calendar');
+    var today = new Date();
+    var currentMonth = today.getMonth();
+    var currentYear = today.getFullYear();
+    
+    // 获取本月第一天
+    var firstDay = new Date(currentYear, currentMonth, 1);
+    var lastDay = new Date(currentYear, currentMonth + 1, 0);
+    
+    // 添加星期标题
+    var weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+    weekDays.forEach(function(day) {
+        calendar.append('<div class="calendar-day-header">' + day + '</div>');
+    });
+    
+    // 添加空白日期
+    for (var i = 0; i < firstDay.getDay(); i++) {
+        calendar.append('<div></div>');
+    }
+    
+    // 添加日期
+    for (var day = 1; day <= lastDay.getDate(); day++) {
+        var date = new Date(currentYear, currentMonth, day);
+        var isToday = date.toDateString() === today.toDateString();
+        var isPast = date < today && !isToday;
+        
+        // 模拟投喂状态 - 实际应用中应该从数据库获取
+        var isFed = isPast && Math.random() > 0.2; // 80%的概率已经投喂
+        
+        var dayClass = 'calendar-day';
+        if (isToday) dayClass += ' today';
+        if (isFed) dayClass += ' fed';
+        
+        calendar.append('<div class="' + dayClass + '">' + day + '</div>');
+    }
+}
+</script>
+{% endblock %}

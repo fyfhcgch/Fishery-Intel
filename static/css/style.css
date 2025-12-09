@@ -1,0 +1,2900 @@
+/* 渔智汇自定义样式 */
+
+:root {
+    /* 主色调 - 现代化的蓝色调 */
+    --primary-color: #2563eb;          /* 现代蓝 */
+    --primary-light: #3b82f6;          /* 浅蓝 */
+    --primary-dark: #1d4ed8;           /* 深蓝 */
+    --primary-hover: #1d4ed8;          /* 悬停色 */
+    --primary-active: #1e40af;         /* 激活色 */
+    
+    /* 成功色 - 绿色系 */
+    --success-color: #10b981;          /* 现代绿 */
+    --success-light: #34d399;          /* 浅绿 */
+    --success-dark: #059669;           /* 深绿 */
+    --success-hover: #059669;          /* 悬停色 */
+    
+    /* 警告色 - 黄橙色系 */
+    --warning-color: #f59e0b;          /* 现代黄 */
+    --warning-light: #fbbf24;          /* 浅黄 */
+    --warning-dark: #d97706;           /* 深黄 */
+    --warning-hover: #d97706;          /* 悬停色 */
+    
+    /* 危险色 - 红色系 */
+    --danger-color: #ef4444;           /* 现代红 */
+    --danger-light: #f87171;           /* 浅红 */
+    --danger-dark: #dc2626;            /* 深红 */
+    --danger-hover: #dc2626;           /* 悬停色 */
+    
+    /* 信息色 - 青色系 */
+    --info-color: #0ea5e9;             /* 现代青 */
+    --info-light: #38bdf8;             /* 浅青 */
+    --info-dark: #0284c7;              /* 深青 */
+    --info-hover: #0284c7;             /* 悬停色 */
+    
+    /* 中性色 */
+    --white: #ffffff;
+    --light-color: #f8fafc;            /* 极浅灰 */
+    --gray-lightest: #f1f5f9;          /* 最浅灰 */
+    --gray-lighter: #e2e8f0;           /* 更浅灰 */
+    --gray-light: #cbd5e1;             /* 浅灰 */
+    --gray-medium: #94a3b8;            /* 中灰 */
+    --gray-dark: #64748b;              /* 深灰 */
+    --gray-darker: #475569;            /* 更深灰 */
+    --dark-color: #1e293b;             /* 深色 */
+    --black: #0f172a;                  /* 黑色 */
+    
+    /* 特殊颜色 */
+    --background-primary: #f1f5f9;     /* 主背景色 */
+    --surface-primary: #ffffff;         /* 主表面色 */
+    --surface-secondary: #f8fafc;      /* 次表面色 */
+    --border-color: #e2e8f0;           /* 边框色 */
+    --border-color-strong: #cbd5e1;    /* 强边框色 */
+    
+    /* 字体 */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --font-size-xs: 0.75rem;           /* 12px */
+    --font-size-sm: 0.875rem;          /* 14px */
+    --font-size-base: 1rem;            /* 16px */
+    --font-size-lg: 1.125rem;          /* 18px */
+    --font-size-xl: 1.25rem;           /* 20px */
+    --font-size-2xl: 1.5rem;           /* 24px */
+    --font-size-3xl: 1.875rem;         /* 30px */
+    --font-size-4xl: 2.25rem;          /* 36px */
+    
+    /* 字重 */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    
+    /* 圆角 */
+    --border-radius-sm: 0.25rem;       /* 4px */
+    --border-radius-base: 0.5rem;      /* 8px */
+    --border-radius-lg: 0.75rem;       /* 12px */
+    --border-radius-xl: 1rem;          /* 16px */
+    --border-radius-full: 9999px;
+    
+    /* 阴影 */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+    
+    /* 过渡 */
+    --transition-all: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-colors: color, background-color, border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-transform: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-opacity: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-shadow: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* 间距 */
+    --spacing-1: 0.25rem;              /* 4px */
+    --spacing-2: 0.5rem;               /* 8px */
+    --spacing-3: 0.75rem;              /* 12px */
+    --spacing-4: 1rem;                 /* 16px */
+    --spacing-5: 1.25rem;              /* 20px */
+    --spacing-6: 1.5rem;               /* 24px */
+    --spacing-8: 2rem;                 /* 32px */
+    --spacing-10: 2.5rem;              /* 40px */
+    --spacing-12: 3rem;                /* 48px */
+    
+    /* 断点 */
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-xxl: 1400px;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-primary);
+    color: var(--dark-color);
+    line-height: 1.6;
+    padding-bottom: 60px; /* 为底部导航栏留空间 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-weight: var(--font-weight-normal);
+    /* 为移动设备添加安全区域支持 */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-lightest);
+    border-radius: var(--border-radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-medium);
+    border-radius: var(--border-radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-dark);
+}
+
+/* 导航栏样式 */
+.navbar-brand {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-xl);
+    color: white !important;
+    transition: var(--transition-all);
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand:hover {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transform: translateY(-1px);
+}
+
+.navbar-nav .nav-link {
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--border-radius-full);
+    margin: 0 4px;
+    transition: var(--transition-all);
+    padding: var(--spacing-2) var(--spacing-3);
+    position: relative;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white !important;
+}
+
+.navbar-nav .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white !important;
+}
+
+.navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 3px;
+    background-color: white;
+    border-radius: var(--border-radius-full);
+}
+
+/* 移动端底部导航栏优化 */
+.navbar.fixed-bottom {
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-top: 1px solid var(--border-color);
+    /* 为移动设备添加安全区域支持 */
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navbar.fixed-bottom .nav-link {
+    color: var(--gray-dark);
+    padding: var(--spacing-2);
+    transition: var(--transition-all);
+    border-radius: var(--border-radius-lg);
+    margin: 2px 4px;
+    font-size: var(--font-size-xs);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.navbar.fixed-bottom .nav-link:hover {
+    background-color: var(--gray-lightest);
+    color: var(--primary-color);
+}
+
+.navbar.fixed-bottom .nav-link.active {
+    color: var(--primary-color);
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+.navbar.fixed-bottom .nav-link i {
+    font-size: var(--font-size-lg);
+}
+
+/* 卡片样式 */
+.card {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-base);
+    transition: var(--transition-all);
+    overflow: hidden;
+    background-color: var(--surface-primary);
+    position: relative;
+    border: 1px solid var(--border-color);
+    /* 添加渐变边框效果 */
+    background-image: linear-gradient(to bottom, var(--surface-primary), var(--surface-primary)), 
+                      linear-gradient(to bottom, var(--primary-color), var(--primary-light));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-4) var(--spacing-5);
+    font-size: var(--font-size-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.card-header i {
+    color: var(--primary-color);
+}
+
+.card-body {
+    padding: var(--spacing-5);
+}
+
+.card-footer {
+    background-color: var(--surface-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-4) var(--spacing-5);
+}
+
+/* 特殊卡片样式 */
+.card-primary {
+    border-top: 4px solid var(--primary-color);
+}
+
+.card-success {
+    border-top: 4px solid var(--success-color);
+}
+
+.card-warning {
+    border-top: 4px solid var(--warning-color);
+}
+
+.card-danger {
+    border-top: 4px solid var(--danger-color);
+}
+
+.card-info {
+    border-top: 4px solid var(--info-color);
+}
+
+/* 数据卡片样式 */
+.data-card {
+    text-align: center;
+    padding: var(--spacing-6);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: var(--transition-all);
+    background: linear-gradient(135deg, var(--surface-primary) 0%, var(--white) 100%);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.data-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+.data-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+}
+
+.data-card:hover::before {
+    height: 6px;
+}
+
+.data-card .data-value {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-2);
+    transition: var(--transition-all);
+    color: var(--dark-color);
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.data-card:hover .data-value {
+    transform: scale(1.05);
+}
+
+.data-card .data-label {
+    color: var(--gray-dark);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: var(--spacing-2);
+}
+
+/* 不同状态的数据卡片 */
+.data-card.success {
+    border-top: 4px solid var(--success-color);
+}
+
+.data-card.warning {
+    border-top: 4px solid var(--warning-color);
+}
+
+.data-card.danger {
+    border-top: 4px solid var(--danger-color);
+}
+
+.data-card.info {
+    border-top: 4px solid var(--info-color);
+}
+
+/* 水质指示器 */
+.water-quality-indicator {
+    position: relative;
+    height: 120px;
+    margin-bottom: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.water-quality-indicator .gauge {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.water-quality-indicator .gauge-label {
+    margin-top: var(--spacing-2);
+    font-weight: var(--font-weight-medium);
+    color: var(--gray-dark);
+    font-size: var(--font-size-sm);
+}
+
+/* 预警样式 */
+.alert-card {
+    border-left: 4px solid;
+    transition: var(--transition-all);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-3);
+}
+
+.alert-card:hover {
+    transform: translateX(5px);
+}
+
+.alert-card.alert-info {
+    border-left-color: var(--info-color);
+    background-color: rgba(14, 165, 233, 0.05);
+}
+
+.alert-card.alert-warning {
+    border-left-color: var(--warning-color);
+    background-color: rgba(245, 158, 11, 0.05);
+}
+
+.alert-card.alert-danger {
+    border-left-color: var(--danger-color);
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* 按钮样式 */
+.btn {
+    border-radius: var(--border-radius-full);
+    font-weight: var(--font-weight-medium);
+    padding: var(--spacing-2) var(--spacing-4);
+    transition: var(--transition-all);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    position: relative;
+    overflow: hidden;
+    font-size: var(--font-size-sm);
+}
+
+.btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active:not(:disabled) {
+    background-color: var(--primary-active);
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: var(--success-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success:active:not(:disabled) {
+    background-color: var(--success-dark);
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-warning:hover:not(:disabled) {
+    background-color: var(--warning-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-warning:active:not(:disabled) {
+    background-color: var(--warning-dark);
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: var(--danger-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-danger:active:not(:disabled) {
+    background-color: var(--danger-dark);
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-outline-primary {
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-primary:active:not(:disabled) {
+    background-color: var(--primary-active);
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-outline-secondary {
+    border: 1px solid var(--border-color);
+    color: var(--gray-dark);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover:not(:disabled) {
+    background-color: var(--gray-lighter);
+    color: var(--dark-color);
+    border-color: var(--gray-light);
+}
+
+/* 图表容器 */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    background-color: var(--surface-secondary);
+    padding: var(--spacing-4);
+}
+
+/* 塘口状态卡片 */
+.pond-status-card {
+    margin-bottom: var(--spacing-4);
+    padding: var(--spacing-4);
+    border-radius: var(--border-radius-lg);
+    background-color: var(--surface-primary);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-all);
+    border: 1px solid var(--border-color);
+}
+
+.pond-status-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.pond-status-card .pond-name {
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-2);
+    font-size: var(--font-size-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.pond-status-card .pond-species {
+    color: var(--gray-dark);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-3);
+}
+
+.pond-status-card .status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.pond-status-card .status-indicator.normal {
+    background-color: var(--success-color);
+}
+
+.pond-status-card .status-indicator.warning {
+    background-color: var(--warning-color);
+}
+
+.pond-status-card .status-indicator.danger {
+    background-color: var(--danger-color);
+}
+
+/* 决策卡片 */
+.decision-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    margin-bottom: var(--spacing-4);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.decision-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(30deg);
+}
+
+.decision-card h3 {
+    margin-bottom: var(--spacing-4);
+    position: relative;
+    z-index: 1;
+}
+
+.decision-card .decision-result {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-4);
+    position: relative;
+    z-index: 1;
+}
+
+/* 天气卡片 */
+.weather-card {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    color: white;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.weather-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(30deg);
+}
+
+.weather-card .weather-temp {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-2);
+}
+
+.weather-card .weather-condition {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-4);
+}
+
+.weather-card .weather-details {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    backdrop-filter: blur(10px);
+}
+
+/* 投喂日历 */
+.feeding-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-2);
+}
+
+.feeding-calendar .calendar-day-header {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-full);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-xs);
+    color: var(--gray-dark);
+}
+
+.feeding-calendar .calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-full);
+    background-color: var(--gray-lightest);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+    transition: var(--transition-all);
+    cursor: pointer;
+}
+
+.feeding-calendar .calendar-day:hover {
+    background-color: var(--gray-lighter);
+    transform: scale(1.1);
+}
+
+.feeding-calendar .calendar-day.fed {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.feeding-calendar .calendar-day.today {
+    border: 2px solid var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: var(--font-weight-bold);
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+    .data-card .data-value {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .chart-container {
+        height: 280px;
+    }
+    
+    .decision-card {
+        padding: var(--spacing-5);
+    }
+    
+    .weather-card {
+        padding: var(--spacing-5);
+    }
+    
+    /* 优化中等屏幕设备上的网格布局 */
+    .col-lg-6 {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    
+    /* 优化中等屏幕设备上的数据卡片 */
+    .data-card .data-value {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .data-card .data-label {
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化中等屏幕设备上的按钮 */
+    .btn {
+        padding: var(--spacing-2) var(--spacing-4);
+        font-size: var(--font-size-sm);
+    }
+    
+    /* 优化中等屏幕设备上的表单控件 */
+    .form-control, .form-select {
+        padding: 0.5rem 1rem;
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化中等屏幕设备上的预警卡片 */
+    .alert-card {
+        padding: var(--spacing-5);
+    }
+    
+    /* 优化中等屏幕设备上的决策卡片 */
+    .decision-card h3 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .decision-card .decision-result {
+        font-size: var(--font-size-2xl);
+    }
+    
+    /* 优化中等屏幕设备上的塘口状态卡片 */
+    .pond-status-card .pond-name {
+        font-size: var(--font-size-lg);
+    }
+    
+    .pond-status-card .pond-species {
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化中等屏幕设备上的图表 */
+    .chart-container {
+        height: 300px;
+        padding: var(--spacing-4);
+    }
+    
+    /* 优化中等屏幕设备上的页脚 */
+    footer {
+        padding: var(--spacing-6) var(--spacing-5);
+    }
+}
+
+/* 中等屏幕设备优化 (768px及以下) */
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 70px; /* 为底部导航栏留更多空间 */
+    }
+    
+    /* 优化小屏幕设备上的数据卡片 */
+    .data-card {
+        margin-bottom: var(--spacing-4);
+        padding: var(--spacing-5);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .data-card .data-value {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-2);
+    }
+    
+    .data-card .data-label {
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化小屏幕设备上的图表容器 */
+    .chart-container {
+        height: 250px;
+        padding: var(--spacing-3);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    /* 优化小屏幕设备上的决策卡片 */
+    .decision-card {
+        padding: var(--spacing-5);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .decision-card h3 {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .decision-card .decision-result {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    /* 优化小屏幕设备上的天气卡片 */
+    .weather-card {
+        padding: var(--spacing-5);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .weather-card .weather-temp {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .weather-card .weather-condition {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    /* 优化小屏幕设备上的卡片 */
+    .card {
+        margin-bottom: var(--spacing-4);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .card-body {
+        padding: var(--spacing-4);
+    }
+    
+    .card-header {
+        padding: var(--spacing-3) var(--spacing-4);
+        font-size: var(--font-size-lg);
+        border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    }
+    
+    /* 优化小屏幕设备上的按钮 */
+    .btn {
+        padding: var(--spacing-2) var(--spacing-4);
+        font-size: var(--font-size-base);
+        min-height: 44px; /* 确保触摸目标足够大 */
+        border-radius: var(--border-radius-full);
+    }
+    
+    /* 优化小屏幕设备上的塘口状态卡片 */
+    .pond-status-card {
+        margin-bottom: var(--spacing-4);
+        padding: var(--spacing-4);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .pond-status-card .pond-name {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-2);
+    }
+    
+    .pond-status-card .pond-species {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--spacing-3);
+    }
+    
+    /* 优化小屏幕设备上的水质指示器 */
+    .water-quality-indicator {
+        height: 100px;
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .water-quality-indicator .gauge {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .water-quality-indicator .gauge-label {
+        font-size: var(--font-size-base);
+        margin-top: var(--spacing-2);
+    }
+    
+    /* 优化小屏幕设备上的投喂日历 */
+    .feeding-calendar {
+        gap: var(--spacing-1);
+    }
+    
+    .feeding-calendar .calendar-day-header {
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-2);
+    }
+    
+    .feeding-calendar .calendar-day {
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-2);
+    }
+    
+    /* 小屏幕设备特定优化 */
+    .container-fluid {
+        padding-left: var(--spacing-4);
+        padding-right: var(--spacing-4);
+    }
+    
+    .row {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+    }
+    
+    .col, [class*="col-"] {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    /* 优化小屏幕设备上的表格显示 */
+    .table-responsive {
+        margin: 0 -1rem;
+        padding: 0 1rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        font-size: var(--font-size-sm);
+    }
+    
+    /* 优化小屏幕设备上的按钮组 */
+    .btn-group {
+        width: 100%;
+        display: flex;
+        gap: var(--spacing-2);
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+        margin: 0;
+    }
+    
+    /* 优化小屏幕设备上的模态框 */
+    .modal-dialog {
+        margin: 0;
+        height: 100vh;
+        max-width: 100%;
+    }
+    
+    .modal-content {
+        height: 100%;
+        border-radius: 0;
+        border: none;
+    }
+    
+    .modal-header {
+        padding: var(--spacing-4);
+    }
+    
+    .modal-body {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: var(--spacing-4);
+    }
+    
+    .modal-footer {
+        padding: var(--spacing-4);
+    }
+    
+    /* 优化小屏幕设备上的表单 */
+    .form-floating {
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .form-group {
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .form-control, .form-select {
+        padding: 0.75rem 1rem;
+        font-size: var(--font-size-base);
+        min-height: 44px; /* 确保触摸目标足够大 */
+        border-radius: var(--border-radius-base);
+    }
+    
+    .form-label {
+        font-size: var(--font-size-base);
+        margin-bottom: 0.5rem;
+    }
+    
+    /* 优化小屏幕设备上的导航栏 */
+    .navbar {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .navbar.fixed-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    /* 优化小屏幕设备上的页面标题 */
+    .page-title {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    /* 优化小屏幕设备上的统计卡片 */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-4);
+    }
+    
+    /* 优化小屏幕设备上的图表容器 */
+    .chart-wrapper {
+        position: relative;
+        height: 250px;
+        width: 100%;
+        margin-bottom: var(--spacing-4);
+    }
+    
+    /* 优化小屏幕设备上的下拉菜单 */
+    .dropdown-menu {
+        min-width: 180px;
+        border-radius: var(--border-radius-lg);
+        padding: 0.5rem 0;
+    }
+    
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化小屏幕设备上的预警卡片 */
+    .alert-card {
+        padding: var(--spacing-4);
+        margin-bottom: var(--spacing-3);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .alert-card.alert-info {
+        border-left-width: 4px;
+    }
+    
+    .alert-card.alert-warning {
+        border-left-width: 4px;
+    }
+    
+    .alert-card.alert-danger {
+        border-left-width: 4px;
+    }
+    
+    /* 优化小屏幕设备上的页脚 */
+    footer {
+        padding: var(--spacing-5) var(--spacing-4);
+        text-align: center;
+    }
+    
+    /* 优化小屏幕设备上的分页 */
+    .pagination {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .page-link {
+        padding: 0.75rem 1rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    /* 优化小屏幕设备上的徽章 */
+    .badge {
+        font-size: var(--font-size-sm);
+        padding: 0.5em 0.75em;
+    }
+    
+    /* 优化小屏幕设备上的面包屑导航 */
+    .breadcrumb {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .breadcrumb-item {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* 优化小屏幕设备上的标签页 */
+    .nav-tabs .nav-link {
+        padding: 0.75rem 1rem;
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化小屏幕设备上的列表组 */
+    .list-group-item {
+        padding: var(--spacing-4);
+    }
+    
+    /* 优化小屏幕设备上的进度条 */
+    .progress {
+        height: 12px;
+        margin-bottom: var(--spacing-3);
+    }
+}
+
+/* 小屏幕设备优化 (576px-768px) */
+@media (min-width: 576px) and (max-width: 768px) {
+    /* 优化576px-768px设备上的布局 */
+    .col-lg-6 {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+    
+    .data-card {
+        margin-bottom: var(--spacing-3);
+        padding: var(--spacing-4);
+    }
+    
+    .card-header {
+        padding: var(--spacing-3) var(--spacing-4);
+        font-size: var(--font-size-base);
+    }
+    
+    .card-body {
+        padding: var(--spacing-4);
+    }
+    
+    .chart-container {
+        height: 220px;
+    }
+    
+    /* 优化数据卡片 */
+    .data-card .data-value {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-2);
+    }
+    
+    .data-card .data-label {
+        font-size: var(--font-size-sm);
+    }
+    
+    /* 优化按钮 */
+    .btn {
+        padding: var(--spacing-2) var(--spacing-3);
+        font-size: var(--font-size-sm);
+        min-height: 44px; /* 确保触摸目标足够大 */
+    }
+    
+    /* 优化表单控件 */
+    .form-control, .form-select {
+        padding: 0.75rem 1rem;
+        font-size: var(--font-size-base);
+        min-height: 44px; /* 确保触摸目标足够大 */
+    }
+    
+    /* 优化决策卡片 */
+    .decision-card {
+        padding: var(--spacing-4);
+    }
+    
+    .decision-card h3 {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .decision-card .decision-result {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-3);
+    }
+    
+    /* 优化天气卡片 */
+    .weather-card {
+        padding: var(--spacing-4);
+    }
+    
+    .weather-card .weather-temp {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--spacing-2);
+    }
+    
+    /* 优化塘口状态卡片 */
+    .pond-status-card .pond-name {
+        font-size: var(--font-size-lg);
+    }
+    
+    .pond-status-card .pond-species {
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化水质指示器 */
+    .water-quality-indicator {
+        height: 100px;
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .water-quality-indicator .gauge {
+        width: 100px;
+        height: 100px;
+    }
+    
+    /* 优化表格 */
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        font-size: var(--font-size-sm);
+    }
+    
+    /* 优化分页 */
+    .page-link {
+        padding: 0.75rem 1rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 576px) {
+    .data-card .data-value {
+        font-size: var(--font-size-lg);
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+    
+    .decision-card {
+        padding: var(--spacing-3);
+    }
+    
+    .weather-card {
+        padding: var(--spacing-3);
+    }
+    
+    .weather-card .weather-temp {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .card-body {
+        padding: var(--spacing-3);
+    }
+    
+    .card-header {
+        padding: var(--spacing-3);
+        font-size: var(--font-size-base);
+    }
+    
+    .btn {
+        padding: var(--spacing-1) var(--spacing-2);
+        font-size: var(--font-size-xs);
+    }
+    
+    .pond-status-card .pond-name {
+        font-size: var(--font-size-sm);
+    }
+    
+    .pond-status-card .pond-species {
+        font-size: var(--font-size-xs);
+    }
+    
+    .water-quality-indicator {
+        height: 80px;
+    }
+    
+    .water-quality-indicator .gauge {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .feeding-calendar .calendar-day {
+        font-size: 0.65rem;
+    }
+    
+    /* 移动端特定优化 */
+    .container-fluid {
+        padding-left: var(--spacing-3);
+        padding-right: var(--spacing-3);
+    }
+    
+    /* 优化移动端表格 */
+    .table td {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    /* 优化移动端模态框 */
+    .modal-body {
+        padding: var(--spacing-3);
+    }
+    
+    /* 优化移动端表单控件 */
+    .form-control, .form-select {
+        padding: 0.5rem 0.75rem;
+        font-size: var(--font-size-sm);
+    }
+    
+    /* 优化移动端导航栏 */
+    .navbar.fixed-bottom .nav-link {
+        font-size: 0.7rem;
+        padding: 8px 0;
+    }
+    
+    .navbar.fixed-bottom .nav-link i {
+        font-size: 1rem;
+    }
+    
+    /* 优化移动端数据卡片 */
+    .data-card {
+        margin-bottom: var(--spacing-3);
+        padding: var(--spacing-4);
+    }
+    
+    .data-card .data-value {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-1);
+    }
+    
+    .data-card .data-label {
+        font-size: var(--font-size-xs);
+    }
+    
+    /* 优化移动端按钮 */
+    .btn {
+        padding: var(--spacing-2) var(--spacing-3);
+        font-size: var(--font-size-xs);
+        min-height: 40px; /* 确保触摸目标足够大 */
+    }
+    
+    /* 优化移动端下拉菜单 */
+    .dropdown-menu {
+        min-width: 150px;
+    }
+    
+    /* 优化移动端表单元素 */
+    .form-control, .form-select {
+        padding: 0.375rem 0.75rem;
+        font-size: var(--font-size-sm);
+        min-height: 40px; /* 确保触摸目标足够大 */
+    }
+    
+    /* 优化移动端标题 */
+    h1 { font-size: var(--font-size-2xl); }
+    h2 { font-size: var(--font-size-xl); }
+    h3 { font-size: var(--font-size-lg); }
+    h4 { font-size: var(--font-size-base); }
+    h5 { font-size: var(--font-size-sm); }
+    
+    /* 优化移动端预警卡片 */
+    .alert-card {
+        padding: var(--spacing-3);
+        margin-bottom: var(--spacing-2);
+    }
+    
+    /* 优化移动端决策卡片 */
+    .decision-card h3 {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .decision-card .decision-result {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-3);
+    }
+    
+    /* 优化移动端塘口状态卡片 */
+    .pond-status-card .pond-name {
+        font-size: var(--font-size-base);
+    }
+    
+    .pond-status-card .pond-species {
+        font-size: var(--font-size-xs);
+    }
+    
+    /* 优化移动端统计网格 */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-3);
+    }
+    
+    /* 优化移动端页脚 */
+    footer {
+        padding: var(--spacing-4) var(--spacing-3);
+    }
+    
+    /* 移动端特定优化 */
+    .container-fluid {
+        padding-left: var(--spacing-3);
+        padding-right: var(--spacing-3);
+    }
+    
+    /* 优化移动端表格 */
+    .table td {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    /* 优化移动端模态框 */
+    .modal-body {
+        padding: var(--spacing-3);
+    }
+    
+    /* 优化移动端表单控件 */
+    .form-control, .form-select {
+        padding: 0.5rem 0.75rem;
+        font-size: var(--font-size-sm);
+    }
+    
+    /* 优化移动端导航栏 */
+    .navbar.fixed-bottom .nav-link {
+        font-size: 0.7rem;
+        padding: 8px 0;
+    }
+    
+    .navbar.fixed-bottom .nav-link i {
+        font-size: 1rem;
+    }
+    
+    /* 优化移动端数据卡片 */
+    .data-card {
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .data-card .data-value {
+        font-size: var(--font-size-xl);
+    }
+    
+    .data-card .data-label {
+        font-size: var(--font-size-xs);
+    }
+    
+    /* 优化移动端按钮 */
+    .btn {
+        padding: var(--spacing-2) var(--spacing-3);
+        font-size: var(--font-size-xs);
+    }
+    
+    /* 优化移动端下拉菜单 */
+    .dropdown-menu {
+        min-width: 150px;
+    }
+    
+    /* 优化移动端表单元素 */
+    .form-control, .form-select {
+        padding: 0.375rem 0.75rem;
+        font-size: var(--font-size-sm);
+    }
+    
+    /* 优化移动端标题 */
+    h1 { font-size: var(--font-size-2xl); }
+    h2 { font-size: var(--font-size-xl); }
+    h3 { font-size: var(--font-size-lg); }
+    h4 { font-size: var(--font-size-base); }
+    h5 { font-size: var(--font-size-sm); }
+    
+    /* 优化移动端预警卡片 */
+    .alert-card {
+        padding: var(--spacing-3);
+    }
+    
+    /* 优化移动端决策卡片 */
+    .decision-card h3 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .decision-card .decision-result {
+        font-size: var(--font-size-xl);
+    }
+    
+    /* 优化移动端塘口状态卡片 */
+    .pond-status-card .pond-name {
+        font-size: var(--font-size-base);
+    }
+    
+    .pond-status-card .pond-species {
+        font-size: var(--font-size-xs);
+    }
+    
+    /* 优化移动端统计网格 */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-3);
+    }
+    
+    /* 优化移动端页脚 */
+    footer {
+        padding: var(--spacing-4) var(--spacing-3);
+    }
+    
+    /* 新增移动端优化 */
+    .mobile-optimized {
+        -webkit-overflow-scrolling: touch;
+        overflow-scrolling: touch;
+    }
+    
+    /* 优化移动端图表容器 */
+    .chart-container {
+        height: 180px;
+        padding: var(--spacing-2);
+    }
+    
+    /* 优化移动端卡片 */
+    .card {
+        margin-bottom: var(--spacing-3);
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .card-header {
+        padding: var(--spacing-3);
+        font-size: var(--font-size-lg);
+    }
+    
+    .card-body {
+        padding: var(--spacing-3);
+    }
+    
+    /* 优化移动端按钮组 */
+    .btn-group {
+        width: 100%;
+        display: flex;
+        gap: var(--spacing-1);
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+        margin: 0;
+    }
+    
+    /* 优化移动端表单 */
+    .form-group {
+        margin-bottom: var(--spacing-3);
+    }
+    
+    /* 优化移动端输入框 */
+    .form-control {
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化移动端选择框 */
+    .form-select {
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化移动端复选框和单选框 */
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: 0.125rem;
+    }
+    
+    .form-check-label {
+        font-size: var(--font-size-base);
+        margin-left: 0.5rem;
+    }
+    
+    /* 优化移动端开关 */
+    .form-switch .form-check-input {
+        width: 2.5rem;
+        height: 1.5rem;
+    }
+    
+    /* 优化移动端下拉菜单 */
+    .dropdown-menu {
+        font-size: var(--font-size-base);
+    }
+    
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+    }
+    
+    /* 优化移动端模态框 */
+    .modal-dialog {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+    
+    .modal-content {
+        border-radius: var(--border-radius-lg);
+    }
+    
+    .modal-header {
+        padding: var(--spacing-3);
+    }
+    
+    .modal-body {
+        padding: var(--spacing-3);
+    }
+    
+    .modal-footer {
+        padding: var(--spacing-3);
+    }
+    
+    /* 优化移动端分页 */
+    .pagination {
+        font-size: var(--font-size-sm);
+    }
+    
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        min-width: 36px;
+        min-height: 36px;
+    }
+    
+    /* 优化移动端徽章 */
+    .badge {
+        font-size: var(--font-size-xs);
+        padding: 0.3em 0.5em;
+    }
+    
+    /* 优化移动端进度条 */
+    .progress {
+        height: 10px;
+        margin-bottom: var(--spacing-2);
+    }
+    
+    /* 优化移动端列表组 */
+    .list-group-item {
+        padding: var(--spacing-3);
+    }
+    
+    /* 优化移动端面包屑 */
+    .breadcrumb {
+        font-size: var(--font-size-sm);
+    }
+    
+    .breadcrumb-item {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* 优化移动端标签页 */
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: var(--font-size-sm);
+    }
+    
+    /* 优化移动端工具提示 */
+    .tooltip-inner {
+        font-size: var(--font-size-xs);
+        padding: 0.25rem 0.5rem;
+        max-width: 150px;
+    }
+    
+    /* 优化移动端警告框 */
+    .alert {
+        padding: var(--spacing-3);
+        font-size: var(--font-size-sm);
+    }
+    
+    .alert-dismissible .btn-close {
+        padding: 0.75rem;
+    }
+    
+    /* 优化移动端折叠面板 */
+    .accordion-button {
+        padding: var(--spacing-3);
+        font-size: var(--font-size-base);
+    }
+    
+    .accordion-body {
+        padding: var(--spacing-3);
+    }
+    
+    /* 优化移动端轮播图 */
+    .carousel-caption {
+        display: none;
+    }
+    
+    .carousel-indicators {
+        bottom: 0.5rem;
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 15%;
+    }
+    
+    /* 优化移动端图像 */
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .img-thumbnail {
+        padding: 0.125rem;
+    }
+    
+    /* 优化移动端表格响应式 */
+    .table-responsive {
+        font-size: var(--font-size-xs);
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+    
+    /* 优化移动端代码块 */
+    pre {
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-2);
+    }
+    
+    code {
+        font-size: var(--font-size-xs);
+        padding: 0.125rem 0.25rem;
+    }
+    
+    /* 优化移动端引用块 */
+    blockquote {
+        padding: var(--spacing-3);
+        font-size: var(--font-size-sm);
+    }
+    
+    blockquote footer {
+        font-size: var(--font-size-xs);
+    }
+    
+    /* 优化移动端地址 */
+    address {
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--spacing-3);
+    }
+    
+    /* 优化移动端缩略图 */
+    .figure-caption {
+        font-size: var(--font-size-xs);
+    }
+}
+
+/* 大屏幕设备优化 */
+@media (min-width: 1200px) {
+    /* 优化大屏幕设备上的数据卡片 */
+    .data-card .data-value {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .data-card .data-label {
+        font-size: var(--font-size-lg);
+    }
+    
+    /* 优化大屏幕设备上的按钮 */
+    .btn {
+        padding: var(--spacing-3) var(--spacing-5);
+        font-size: var(--font-size-base);
+    }
+    
+    /* 优化大屏幕设备上的表单控件 */
+    .form-control, .form-select {
+        padding: 0.75rem 1.25rem;
+        font-size: var(--font-size-lg);
+    }
+    
+    /* 优化大屏幕设备上的预警卡片 */
+    .alert-card {
+        padding: var(--spacing-6);
+    }
+    
+    /* 优化大屏幕设备上的决策卡片 */
+    .decision-card h3 {
+        font-size: var(--font-size-xl);
+    }
+    
+    .decision-card .decision-result {
+        font-size: var(--font-size-3xl);
+    }
+    
+    /* 优化大屏幕设备上的塘口状态卡片 */
+    .pond-status-card .pond-name {
+        font-size: var(--font-size-xl);
+    }
+    
+    .pond-status-card .pond-species {
+        font-size: var(--font-size-lg);
+    }
+    
+    /* 优化大屏幕设备上的图表 */
+    .chart-container {
+        height: 350px;
+        padding: var(--spacing-5);
+    }
+    
+    /* 优化大屏幕设备上的页脚 */
+    footer {
+        padding: var(--spacing-8) var(--spacing-6);
+    }
+    
+    /* 优化大屏幕设备上的网格布局 */
+    .container-fluid {
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #0f172a;
+        color: #e2e8f0;
+    }
+    
+    .card {
+        background-color: #1e293b;
+        color: #e2e8f0;
+    }
+    
+    .navbar-light {
+        background-color: #1e293b !important;
+    }
+    
+    .navbar-light .navbar-brand,
+    .navbar-light .nav-link {
+        color: #e2e8f0 !important;
+    }
+    
+    .card-header {
+        border-bottom-color: #334155;
+    }
+    
+    .data-card::before {
+        background: linear-gradient(90deg, var(--primary-dark), var(--primary-color));
+    }
+    
+    .btn-outline-primary {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-outline-secondary {
+        border-color: #475569;
+        color: #cbd5e1;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #475569;
+        color: white;
+    }
+    
+    .table {
+        color: #e2e8f0;
+    }
+    
+    .table-striped > tbody > tr:nth-of-type(odd) > td,
+    .table-striped > tbody > tr:nth-of-type(odd) > th {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .modal-content {
+        background-color: #1e293b;
+        color: #e2e8f0;
+    }
+    
+    .modal-header {
+        border-bottom-color: #334155;
+    }
+    
+    .modal-footer {
+        border-top-color: #334155;
+    }
+    
+    .form-control {
+        background-color: #334155;
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+    
+    .form-control:focus {
+        background-color: #334155;
+        border-color: var(--primary-color);
+        color: #e2e8f0;
+        box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+    }
+    
+    .dropdown-menu {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    
+    .dropdown-item {
+        color: #e2e8f0;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #334155;
+        color: white;
+    }
+    
+    .navbar.fixed-bottom {
+        background-color: rgba(30, 41, 59, 0.95) !important;
+        border-top-color: #334155;
+    }
+    
+    .navbar.fixed-bottom .nav-link {
+        color: #cbd5e1;
+    }
+    
+    .navbar.fixed-bottom .nav-link.active {
+        color: var(--primary-color);
+        background-color: rgba(37, 99, 235, 0.1);
+    }
+    
+    .navbar.fixed-bottom .nav-link:hover {
+        background-color: #334155;
+        color: var(--primary-color);
+    }
+    
+    /* 深色模式下的特殊样式 */
+    .data-card {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    
+    .data-card .data-value {
+        color: #e2e8f0;
+    }
+    
+    .data-card .data-label {
+        color: #94a3b8;
+    }
+    
+    .water-quality-indicator .gauge-label {
+        color: #94a3b8;
+    }
+    
+    .pond-status-card {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    
+    .pond-status-card .pond-species {
+        color: #94a3b8;
+    }
+    
+    .chart-container {
+        background-color: #0f172a;
+    }
+}
+
+/* 手动深色模式类 */
+body.dark-mode {
+    background-color: #0f172a;
+    color: #e2e8f0;
+}
+
+body.dark-mode .card {
+    background-color: #1e293b;
+    color: #e2e8f0;
+}
+
+body.dark-mode .navbar-light {
+    background-color: #1e293b !important;
+}
+
+body.dark-mode .navbar-light .navbar-brand,
+body.dark-mode .navbar-light .nav-link {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .card-header {
+    border-bottom-color: #334155;
+}
+
+body.dark-mode .data-card::before {
+    background: linear-gradient(90deg, var(--primary-dark), var(--primary-color));
+}
+
+body.dark-mode .btn-outline-primary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+body.dark-mode .btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+body.dark-mode .btn-outline-secondary {
+    border-color: #475569;
+    color: #cbd5e1;
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: #475569;
+    color: white;
+}
+
+body.dark-mode .table {
+    color: #e2e8f0;
+}
+
+body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > td,
+body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .modal-content {
+    background-color: #1e293b;
+    color: #e2e8f0;
+}
+
+body.dark-mode .modal-header {
+    border-bottom-color: #334155;
+}
+
+body.dark-mode .modal-footer {
+    border-top-color: #334155;
+}
+
+body.dark-mode .form-control {
+    background-color: #334155;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+
+body.dark-mode .form-control:focus {
+    background-color: #334155;
+    border-color: var(--primary-color);
+    color: #e2e8f0;
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+}
+
+body.dark-mode .dropdown-menu {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .dropdown-item {
+    color: #e2e8f0;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #334155;
+    color: white;
+}
+
+body.dark-mode .navbar.fixed-bottom {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+    border-top-color: #334155;
+}
+
+body.dark-mode .navbar.fixed-bottom .nav-link {
+    color: #cbd5e1;
+}
+
+body.dark-mode .navbar.fixed-bottom .nav-link.active {
+    color: var(--primary-color);
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+body.dark-mode .navbar.fixed-bottom .nav-link:hover {
+    background-color: #334155;
+    color: var(--primary-color);
+}
+
+/* 深色模式下的特殊样式 */
+body.dark-mode .data-card {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .data-card .data-value {
+    color: #e2e8f0;
+}
+
+body.dark-mode .data-card .data-label {
+    color: #94a3b8;
+}
+
+body.dark-mode .water-quality-indicator .gauge-label {
+    color: #94a3b8;
+}
+
+body.dark-mode .pond-status-card {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .pond-status-card .pond-species {
+    color: #94a3b8;
+}
+
+body.dark-mode .chart-container {
+    background-color: #0f172a;
+}
+
+/* 高对比度模式 */
+.high-contrast {
+    filter: contrast(1.2);
+}
+
+.high-contrast .card {
+    border: 2px solid #333;
+}
+
+.high-contrast .data-card {
+    border: 2px solid #333;
+}
+
+.high-contrast .btn {
+    border: 2px solid currentColor;
+}
+
+/* 大字体模式 */
+.large-font {
+    font-size: 120%;
+}
+
+.large-font .data-card .data-value {
+    font-size: 2.5rem;
+}
+
+.large-font .card-header {
+    font-size: 1.5rem;
+}
+
+.large-font .btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.1rem;
+}
+
+/* 触摸交互优化 */
+@media (hover: none) and (pointer: coarse) {
+    /* 移动设备上的触摸优化 */
+    .btn, .card, .nav-link, .dropdown-item, .form-control, .form-select {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .btn:active {
+        transform: scale(0.95);
+    }
+    
+    .card:active {
+        transform: scale(0.98);
+    }
+    
+    .nav-link:active {
+        background-color: rgba(37, 99, 235, 0.1);
+    }
+    
+    .dropdown-item:active {
+        background-color: var(--primary-light);
+        color: white;
+    }
+    
+    /* 增大触摸目标 */
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .navbar.fixed-bottom .nav-link {
+        padding: 0.8rem 0.5rem;
+        min-height: 50px;
+    }
+    
+    .form-control, .form-select {
+        min-height: 44px;
+    }
+    
+    .dropdown-item {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* 减少悬停效果 */
+    .card:hover {
+        transform: none;
+        box-shadow: var(--shadow-base);
+    }
+    
+    .btn:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .data-card:hover .data-value {
+        transform: none;
+    }
+    
+    /* 优化表格在触摸设备上的体验 */
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    .table td {
+        padding: 0.5rem;
+        vertical-align: middle;
+    }
+    
+    /* 优化模态框在触摸设备上的体验 */
+    .modal-dialog {
+        margin: 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    /* 优化导航菜单 */
+    .navbar-collapse {
+        background-color: white;
+        padding: 1rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        margin-top: 0.5rem;
+    }
+    
+    .dark-mode .navbar-collapse {
+        background-color: var(--dark-color);
+    }
+    
+    /* 优化下拉菜单 */
+    .dropdown-menu {
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: none;
+        padding: 0.5rem;
+    }
+    
+    /* 优化分页 */
+    .page-link {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* 触摸设备反馈样式 */
+.touch-device .btn.touch-active,
+.touch-device .card.touch-active,
+.touch-device .nav-link.touch-active {
+    opacity: 0.7;
+    transform: scale(0.95);
+}
+
+.touch-device .dropdown-item.touch-active {
+    background-color: var(--primary-light);
+    color: white;
+}
+
+/* 滑动手势支持 */
+.swipe-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* 隐藏滚动条 */
+}
+
+.swipe-container::-webkit-scrollbar {
+    display: none;
+}
+
+.swipe-item {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+}
+
+/* 侧滑菜单支持 */
+.swipe-menu {
+    position: relative;
+    overflow: hidden;
+}
+
+.swipe-menu-content {
+    transition: transform 0.3s ease;
+}
+
+.swipe-menu-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.swipe-menu-actions .btn {
+    height: 100%;
+    border-radius: 0;
+}
+
+/* 长按效果 */
+.long-press {
+    position: relative;
+}
+
+.long-press::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.long-press.active::after {
+    opacity: 1;
+}
+
+/* 移动端优化样式 */
+.mobile-optimized {
+    /* 提高滚动性能 */
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+    
+    /* 减少重绘和回流 */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000;
+}
+
+/* 移动端滚动优化 */
+.mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* 移动端触摸反馈 */
+.mobile-touch {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    touch-action: manipulation;
+}
+
+/* 移动端动画优化 */
+.mobile-animation {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
+}
+
+/* 移动端延迟加载图片 */
+.lazy {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lazy.loaded {
+    opacity: 1;
+}
+
+/* 移动端骨架屏 */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* 移动端下拉刷新指示器 */
+.pull-to-refresh {
+    position: relative;
+    padding-top: 1px; /* 为下拉指示器留空间 */
+}
+
+.pull-to-refresh-indicator {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.pull-to-refresh-indicator.active {
+    top: 20px;
+}
+
+.pull-to-refresh-indicator.loading {
+    animation: spin 1s linear infinite;
+}
+
+/* 移动端侧滑菜单 */
+.swipe-menu {
+    position: relative;
+    overflow: hidden;
+}
+
+.swipe-menu-content {
+    transition: transform 0.3s ease;
+    background-color: white;
+}
+
+.swipe-menu-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+}
+
+.swipe-menu-actions .btn {
+    border-radius: 0;
+    height: 100%;
+}
+
+/* 移动端浮动操作按钮 */
+.fab {
+    position: fixed;
+    bottom: 80px; /* 为底部导航栏留空间 */
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.fab:active {
+    transform: scale(0.95);
+}
+
+/* 移动端底部操作栏 */
+.bottom-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border-top: 1px solid var(--gray-medium);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-around;
+    z-index: 1000;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+.dark-mode .bottom-action-bar {
+    background-color: var(--dark-color);
+    border-top-color: var(--gray-dark);
+}
+
+/* 移动端全屏模态框 */
+.modal-fullscreen-mobile {
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    margin: 0;
+}
+
+.modal-fullscreen-mobile .modal-content {
+    height: 100%;
+    border: none;
+    border-radius: 0;
+}
+
+.modal-fullscreen-mobile .modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 移动端优化表格 */
+.table-mobile {
+    font-size: 0.9rem;
+}
+
+.table-mobile th,
+.table-mobile td {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+.table-mobile .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* 移动端卡片列表 */
+.card-list-mobile {
+    margin: 0 -1rem;
+}
+
+.card-list-mobile .card {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin-bottom: 0;
+}
+
+.card-list-mobile .card:first-child {
+    border-top: none;
+}
+
+.card-list-mobile .card:last-child {
+    border-bottom: none;
+}
+
+/* 刷新指示器样式 */
+#refresh-indicator {
+    transition: all 0.3s ease;
+}
+
+#refresh-indicator.spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 深色模式下的刷新指示器 */
+.dark-mode #refresh-indicator {
+    background-color: var(--primary-dark) !important;
+}
+
+/* 高对比度模式下的刷新指示器 */
+.high-contrast #refresh-indicator {
+    border: 2px solid var(--dark-color);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* 应用动画 */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-in-up {
+    animation: slideInUp 0.5s ease-out;
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* 状态指示器动画 */
+.status-indicator.danger {
+    animation: pulse 2s infinite;
+}
+
+/* 加载状态优化 */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.loading {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+.dark-mode .loading {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-top-color: var(--primary-color);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 工具提示样式优化 */
+.tooltip-inner {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: var(--border-radius-lg);
+    padding: 8px 12px;
+    font-size: var(--font-size-sm);
+    max-width: 200px;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: rgba(0, 0, 0, 0.8);
+}
+
+.tooltip.bs-tooltip-left .tooltip-arrow::before {
+    border-left-color: rgba(0, 0, 0, 0.8);
+}
+
+.tooltip.bs-tooltip-right .tooltip-arrow::before {
+    border-right-color: rgba(0, 0, 0, 0.8);
+}
+
+/* 模态框样式优化 */
+.modal-content {
+    border-radius: var(--border-radius-lg);
+    border: none;
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-4) var(--spacing-5);
+}
+
+.modal-body {
+    padding: var(--spacing-5);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-4) var(--spacing-5);
+}
+
+/* 表单样式优化 */
+.form-control {
+    border-radius: var(--border-radius-base);
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 0.9rem;
+    font-size: var(--font-size-sm);
+    transition: var(--transition-all);
+    background-color: var(--surface-primary);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+    background-color: var(--surface-primary);
+}
+
+.form-label {
+    font-weight: var(--font-weight-medium);
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+}
+
+.dark-mode .form-label {
+    color: #e2e8f0;
+}
+
+/* 下拉菜单样式优化 */
+.dropdown-menu {
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem 0;
+    background-color: var(--surface-primary);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    font-size: var(--font-size-sm);
+    transition: var(--transition-all);
+}
+
+.dropdown-item:hover {
+    background-color: var(--gray-lightest);
+    color: var(--primary-color);
+}
+
+/* 表格样式优化 */
+.table {
+    margin-bottom: 0;
+    font-size: var(--font-size-sm);
+}
+
+.table th {
+    border-top: none;
+    font-weight: var(--font-weight-semibold);
+    color: var(--dark-color);
+    background-color: var(--gray-lightest);
+    padding: 0.75rem;
+}
+
+.dark-mode .table th {
+    color: #e2e8f0;
+    background-color: #334155;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 0.75rem;
+}
+
+/* 徽章样式优化 */
+.badge {
+    font-weight: var(--font-weight-medium);
+    padding: 0.4em 0.6em;
+    border-radius: var(--border-radius-full);
+}
+
+/* 进度条样式优化 */
+.progress {
+    height: 8px;
+    border-radius: var(--border-radius-full);
+    background-color: var(--gray-lighter);
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: var(--border-radius-full);
+}
+
+/* 分页样式优化 */
+.pagination .page-link {
+    border: none;
+    margin: 0 2px;
+    border-radius: var(--border-radius-full);
+    color: var(--primary-color);
+    padding: 0.5rem 0.75rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.pagination .page-link:hover {
+    background-color: var(--gray-lightest);
+    color: var(--primary-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* 列表组样式优化 */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+}
+
+.list-group-item:first-child {
+    border-top-left-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--border-radius-lg);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+    border-bottom-left-radius: var(--border-radius-lg);
+    border-bottom-right-radius: var(--border-radius-lg);
+}
+
+.list-group-item:hover {
+    background-color: var(--gray-lightest);
+}
+
+/* 面包屑导航样式优化 */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    color: var(--gray-dark);
+}
+
+.breadcrumb-item.active {
+    color: var(--gray-dark);
+}
+
+/* 标签页样式优化 */
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--gray-dark);
+    padding: 0.75rem 1rem;
+    margin-bottom: -1px;
+    font-weight: var(--font-weight-medium);
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.nav-tabs .nav-link.active {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+    background-color: transparent;
+}
+
+.tab-content {
+    padding-top: 1rem;
+}

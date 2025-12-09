@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Profile') }} - 渔智汇{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ _('Profile') }}</h2>
+    <div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Home') }}
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h4>{{ user.username }}</h4>
+                <p class="text-muted">{{ user.phone }}</p>
+                <div class="mt-3">
+                    <span class="badge bg-primary">养殖户</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+    <div class="card-header">
+        <h5 class="mb-0">{{ _('Preferences') }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="highContrastToggle" onchange="toggleHighContrast()">
+            <label class="form-check-label" for="highContrastToggle">
+                {{ _('High Contrast Mode') }}
+            </label>
+        </div>
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="largeFontToggle" onchange="toggleLargeFont()">
+            <label class="form-check-label" for="largeFontToggle">
+                {{ _('Large Font Mode') }}
+            </label>
+        </div>
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+            <label class="form-check-label" for="darkModeToggle">
+                {{ _('Dark Mode') }}
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">养殖统计</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-primary">{{ user.pond_count }}</div>
+                            <div class="data-label">塘口数量</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-success">
+                                {{ user.total_area }}
+                            </div>
+                            <div class="data-label">总面积(亩)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-info">
+                                {{ user.species_count }}
+                            </div>
+                            <div class="data-label">养殖品种</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-warning">30</div>
+                            <div class="data-label">使用天数</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h6 class="mb-3">塘口列表</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>塘口名称</th>
+                                <th>面积(亩)</th>
+                                <th>养殖品种</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pond in ponds %}
+                            <tr>
+                                <td>{{ pond.name }}</td>
+                                <td>{{ pond.area }}</td>
+                                <td>{{ pond.species }}</td>
+                                <td>{{ pond.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <a href="{{ url_for('main.pond_detail', pond_id=pond.id) }}" class="btn btn-sm btn-outline-primary">
+                                        查看详情
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">使用帮助</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="helpAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                如何查看水质数据？
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                在首页仪表盘可以查看所有塘口的实时水质数据概览，点击"查看详情"可以进入塘口详情页面查看24小时内的水质变化趋势。您也可以通过导航栏进入"数据"页面查看更详细的历史数据。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                如何获取投喂建议？
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                进入"决策"页面，选择您需要获取投喂建议的塘口，点击"获取今日投喂方案"按钮。系统将根据当前水质、天气和历史数据，为您提供精准的投喂建议，并解释决策依据。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                如何处理预警通知？
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                            <div class="accordion-body">
+                                当系统检测到水质异常时，会在首页和预警页面显示通知。点击预警可以查看详细信息和处理建议。处理完成后，点击"标记已解决"按钮将预警状态更新为已解决。对于严重预警，建议立即采取相应措施。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示消息容器 -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // 初始化偏好设置状态
+    $('#highContrastToggle').prop('checked', localStorage.getItem('highContrast') === 'true');
+    $('#largeFontToggle').prop('checked', localStorage.getItem('largeFont') === 'true');
+    $('#darkModeToggle').prop('checked', localStorage.getItem('darkMode') === 'true');
+});
+</script>
+{% endblock %}

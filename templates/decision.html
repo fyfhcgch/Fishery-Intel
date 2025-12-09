@@ -1,0 +1,736 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Decision Center') }} - 渔智汇{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ _('AI Aquaculture Brain') }}</h2>
+    <div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Home') }}
+        </a>
+    </div>
+</div>
+
+<!-- 塘口选择 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <label for="pondSelect" class="form-label">{{ _('Select Pond') }}</label>
+                        <select class="form-select" id="pondSelect" onchange="changePond()">
+                            {% for pond in ponds %}
+                            <option value="{{ pond.id }}" {% if pond.id == selected_pond_id %}selected{% endif %}>
+                                {{ pond.name }} - {{ pond.species }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button class="btn btn-primary" onclick="getTodayFeedingDecision()">
+                                <i class="fas fa-brain me-1"></i>{{ _('Get Today\'s Feeding Plan') }}
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="viewHistoricalDecisions()">
+                                <i class="fas fa-history me-1"></i>{{ _('Historical Decisions') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 当前塘口状态 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">当前塘口状态</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-primary" id="currentDo">--</div>
+                            <div class="data-label">溶解氧(mg/L)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-info" id="currentTemp">--</div>
+                            <div class="data-label">温度(°C)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-success" id="currentPh">--</div>
+                            <div class="data-label">pH值</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-warning" id="currentAmmonia">--</div>
+                            <div class="data-label">氨氮(mg/L)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-primary" id="lastFeeding">--</div>
+                            <div class="data-label">上次投喂量(kg)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-success" id="growthRate">--</div>
+                            <div class="data-label">生长速率</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-info" id="feedConversion">--</div>
+                            <div class="data-label">饲料系数</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-warning" id="weatherCondition">--</div>
+                            <div class="data-label">天气状况</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI决策结果 -->
+<div class="row mb-4" id="decisionResult" style="display: none;">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">AI投喂决策方案</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>推荐投喂方案</h6>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <div class="display-4 text-primary" id="recommendedAmount">--</div>
+                                <div class="text-muted">公斤</div>
+                            </div>
+                            <div>
+                                <div class="mb-2">
+                                    <span class="badge bg-success">节省饲料: <span id="feedSaving">--</span>%</span>
+                                </div>
+                                <div>
+                                    <span class="badge bg-info">预计增重: <span id="expectedGrowth">--</span>kg</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h6>投喂时间建议</h6>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-sun text-warning me-2"></i>
+                                <span>上午: <span id="morningFeeding">--</span>kg</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-cloud-sun text-info me-2"></i>
+                                <span>下午: <span id="afternoonFeeding">--</span>kg</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-moon text-secondary me-2"></i>
+                                <span>晚上: <span id="eveningFeeding">--</span>kg</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6>决策依据</h6>
+                        <div class="decision-factors">
+                            <div class="factor-item">
+                                <div class="factor-name">水质状况</div>
+                                <div class="factor-value" id="waterQualityFactor">--</div>
+                            </div>
+                            <div class="factor-item">
+                                <div class="factor-name">天气影响</div>
+                                <div class="factor-value" id="weatherFactor">--</div>
+                            </div>
+                            <div class="factor-item">
+                                <div class="factor-name">生长阶段</div>
+                                <div class="factor-value" id="growthStageFactor">--</div>
+                            </div>
+                            <div class="factor-item">
+                                <div class="factor-name">历史投喂</div>
+                                <div class="factor-value" id="historicalFactor">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>操作建议</h6>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span id="operationAdvice">--</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-outline-secondary me-2" onclick="rejectDecision()">
+                                <i class="fas fa-times me-1"></i>拒绝方案
+                            </button>
+                            <button class="btn btn-primary" onclick="applyDecision()">
+                                <i class="fas fa-check me-1"></i>应用方案
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 历史决策记录 -->
+<div class="row mb-4" id="historicalDecisions" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">历史决策记录</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>塘口</th>
+                                <th>推荐投喂量(kg)</th>
+                                <th>实际投喂量(kg)</th>
+                                <th>决策依据</th>
+                                <th>执行状态</th>
+                                <th>效果评估</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historicalDecisionsTable">
+                            <tr>
+                                <td colspan="7" class="text-center">暂无历史决策记录</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 决策效果分析 -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">投喂效率趋势</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="feedingEfficiencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">决策准确率</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="decisionAccuracyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示消息容器 -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var feedingEfficiencyChart, decisionAccuracyChart;
+var currentPondId = {{ selected_pond_id|default('1') }};
+var currentDecisionId = null;
+
+// Toast notification function
+function showToast(message, type) {
+    // Create toast container if it doesn't exist
+    if ($('#toastContainer').length === 0) {
+        $('body').append('<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>');
+    }
+    
+    // Determine toast class based on type
+    var toastClass = 'bg-info';
+    if (type === 'success') {
+        toastClass = 'bg-success';
+    } else if (type === 'error') {
+        toastClass = 'bg-danger';
+    } else if (type === 'warning') {
+        toastClass = 'bg-warning';
+    }
+    
+    // Create toast element
+    var toastId = 'toast_' + Date.now();
+    var toastHtml = `
+        <div id="${toastId}" class="toast ${toastClass} text-white mb-2" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 250px;">
+            <div class="toast-body">
+                ${message}
+                <button type="button" class="btn-close btn-close-white float-end" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    // Add toast to container
+    $('#toastContainer').append(toastHtml);
+    
+    // Initialize and show toast
+    var toastElement = new bootstrap.Toast(document.getElementById(toastId));
+    toastElement.show();
+    
+    // Remove toast element after it's hidden
+    $('#' + toastId).on('hidden.bs.toast', function() {
+        $(this).remove();
+    });
+}
+
+$(document).ready(function() {
+    // 初始化图表
+    initCharts();
+    
+    // 加载当前塘口状态
+    loadPondStatus();
+    
+    // 加载历史决策数据
+    loadHistoricalDecisions();
+    
+    // 加载决策效果分析
+    loadDecisionAnalysis();
+});
+
+// 初始化图表
+function initCharts() {
+    var chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                }
+            },
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    };
+    
+    // 投喂效率趋势图表
+    var feedingEfficiencyCtx = document.getElementById('feedingEfficiencyChart').getContext('2d');
+    feedingEfficiencyChart = new Chart(feedingEfficiencyCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: chartOptions
+    });
+    
+    // 决策准确率图表
+    var decisionAccuracyCtx = document.getElementById('decisionAccuracyChart').getContext('2d');
+    decisionAccuracyChart = new Chart(decisionAccuracyCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: chartOptions
+    });
+}
+
+// 加载塘口状态
+function loadPondStatus() {
+    $.get('/decision/api/pond_status/' + currentPondId, function(data) {
+        // 更新当前水质数据
+        $('#currentDo').text(data.water_quality.dissolved_oxygen);
+        $('#currentTemp').text(data.water_quality.temperature);
+        $('#currentPh').text(data.water_quality.ph);
+        $('#currentAmmonia').text(data.water_quality.ammonia);
+        
+        // 更新其他状态数据
+        $('#lastFeeding').text(data.last_feeding);
+        $('#growthRate').text(data.growth_rate);
+        $('#feedConversion').text(data.feed_conversion);
+        $('#weatherCondition').text(data.weather_condition);
+    });
+}
+
+// 获取投喂决策
+function getTodayFeedingDecision() {
+    // 显示加载状态
+    showToast('正在生成AI决策方案...', 'info');
+    
+    console.log('Getting feeding decision for pond ID:', currentPondId);
+    
+    $.get('/decision/api/feeding_decision/' + currentPondId, function(data) {
+        console.log('Feeding decision response:', data);
+        // 显示决策结果
+        displayDecisionResult(data);
+        
+        // 显示成功消息
+        showToast('AI决策方案生成成功', 'success');
+    }).fail(function(xhr, status, error) {
+        console.error('Error getting feeding decision:', status, error);
+        console.error('Response text:', xhr.responseText);
+        showToast('获取投喂方案失败: ' + error, 'error');
+    });
+}
+
+// 显示决策结果
+function displayDecisionResult(data) {
+    console.log('Displaying decision result:', data);
+    
+    // 保存当前决策ID
+    currentDecisionId = data.decision_id;
+    
+    // 更新推荐投喂方案
+    $('#recommendedAmount').text(data.recommended_amount);
+    $('#feedSaving').text(data.feed_saving);
+    $('#expectedGrowth').text(data.expected_growth);
+    
+    // 更新投喂时间建议
+    if (data.feeding_times && data.feeding_times.length >= 3) {
+        $('#morningFeeding').text(data.feeding_times[0]);
+        $('#afternoonFeeding').text(data.feeding_times[1]);
+        $('#eveningFeeding').text(data.feeding_times[2]);
+    }
+    
+    // 更新决策依据 - 使用reasoning文本填充到操作建议区域
+    $('#operationAdvice').text(data.reasoning);
+    
+    // 更新决策依据下的各个因素
+    if (data.water_quality) {
+        var wq = data.water_quality;
+        var waterQualityText = `温度: ${wq.temperature}℃, 溶解氧: ${wq.dissolved_oxygen}mg/L, pH: ${wq.ph}, 氨氮: ${wq.ammonia}mg/L`;
+        $('#waterQualityFactor').text(waterQualityText);
+    }
+    
+    // 天气影响 - 使用模拟数据
+    var weatherConditions = ['晴朗', '多云', '阴天', '小雨'];
+    var randomWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+    $('#weatherFactor').text(randomWeather);
+    
+    // 生长阶段 - 根据塘口品种和当前时间计算
+            if (data.pond) {
+                var growthStage = '生长期'; // 默认值
+                if (data.pond.species === '南美白对虾') {
+                    growthStage = '快速生长期';
+                } else if (data.pond.species === '草鱼') {
+                    growthStage = '育肥期';
+                }
+                $('#growthStageFactor').text(growthStage);
+            }
+            
+            // 历史投喂 - 获取最近的投喂记录
+            if (data.last_feeding) {
+                $('#historicalFactor').text(data.last_feeding);
+            } else {
+                $('#historicalFactor').text('暂无记录');
+            }
+    
+    // 显示决策结果区域
+    $('#decisionResult').slideDown();
+    console.log('Decision result displayed');
+}
+
+// 应用决策方案
+function applyDecision() {
+    var decisionData = {
+        amount: $('#recommendedAmount').text(),
+        decision_id: currentDecisionId
+    };
+    
+    $.ajax({
+        url: '/decision/api/apply_decision/' + currentPondId,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(decisionData),
+        success: function(response) {
+            if (response.success) {
+                showToast('决策方案已应用', 'success');
+                
+                // 刷新历史决策记录
+                loadHistoricalDecisions();
+                
+                // 隐藏决策结果区域
+                $('#decisionResult').slideUp();
+                
+                // 清空当前决策ID
+                currentDecisionId = null;
+            } else {
+                showToast('应用决策方案失败: ' + response.message, 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error applying decision:', status, error);
+            console.error('Response text:', xhr.responseText);
+            showToast('应用决策方案失败: ' + error, 'error');
+        }
+    });
+}
+
+// 拒绝决策方案
+function rejectDecision() {
+    // 创建模态对话框
+    var modalHtml = `
+        <div class="modal fade" id="rejectReasonModal" tabindex="-1" aria-labelledby="rejectReasonModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rejectReasonModalLabel">拒绝决策方案</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="rejectReason" class="form-label">请输入拒绝该决策方案的原因:</label>
+                            <textarea class="form-control" id="rejectReason" rows="3" placeholder="请详细说明原因..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="confirmReject">确认拒绝</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // 如果模态框已存在，先移除
+    $('#rejectReasonModal').remove();
+    
+    // 添加模态框到页面
+    $('body').append(modalHtml);
+    
+    // 显示模态框
+    var modal = new bootstrap.Modal(document.getElementById('rejectReasonModal'));
+    modal.show();
+    
+    // 确认拒绝按钮点击事件
+    $('#confirmReject').click(function() {
+        var reason = $('#rejectReason').val().trim();
+        if (!reason) {
+            showToast('请输入拒绝原因', 'warning');
+            return;
+        }
+        
+        // 关闭模态框
+        modal.hide();
+        
+        // 发送拒绝请求
+        $.ajax({
+            url: '/decision/api/reject_decision',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                pond_id: currentPondId,
+                decision_id: currentDecisionId,
+                reason: reason
+            }),
+            success: function(response) {
+                if (response.success) {
+                    showToast('已记录您的反馈，感谢您的参与', 'success');
+                    
+                    // 隐藏决策结果区域
+                    $('#decisionResult').slideUp();
+                    
+                    // 清空当前决策ID
+                    currentDecisionId = null;
+                } else {
+                    showToast('记录反馈失败: ' + response.message, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error rejecting decision:', status, error);
+                console.error('Response text:', xhr.responseText);
+                showToast('记录反馈失败: ' + error, 'error');
+            }
+        });
+    });
+}
+
+// 查看历史决策
+function viewHistoricalDecisions() {
+    // 切换历史决策记录显示状态
+    $('#historicalDecisions').slideToggle();
+    
+    // 如果是显示状态，加载数据
+    if ($('#historicalDecisions').is(':visible')) {
+        loadHistoricalDecisions();
+    }
+}
+
+// 加载历史决策记录
+function loadHistoricalDecisions() {
+    $.get('/decision/api/historical_decisions/' + currentPondId, function(data) {
+        var tbody = $('#historicalDecisionsTable');
+        tbody.empty();
+        
+        if (data.length === 0) {
+            tbody.append('<tr><td colspan="7" class="text-center">暂无历史决策记录</td></tr>');
+            return;
+        }
+        
+        data.forEach(function(decision) {
+            var statusBadge = decision.applied ? 
+                '<span class="badge bg-success">已应用</span>' : 
+                '<span class="badge bg-secondary">已拒绝</span>';
+            
+            // 根据实际投喂量与推荐量的比较来评估效果
+            var effectBadge = '较差';
+            var effectClass = 'danger';
+            
+            if (decision.actual_amount && decision.recommended_amount) {
+                var ratio = decision.actual_amount / decision.recommended_amount;
+                if (ratio >= 0.9 && ratio <= 1.1) {
+                    effectBadge = '良好';
+                    effectClass = 'success';
+                } else if (ratio >= 0.8 && ratio <= 1.2) {
+                    effectBadge = '一般';
+                    effectClass = 'warning';
+                }
+            }
+            
+            var effectBadgeHtml = `<span class="badge bg-${effectClass}">${effectBadge}</span>`;
+            
+            // 获取塘口名称
+            var pondName = decision.pond_name || '未知塘口';
+            
+            tbody.append(`
+                <tr>
+                    <td>${decision.created_at}</td>
+                    <td>${pondName}</td>
+                    <td>${decision.recommended_amount}</td>
+                    <td>${decision.actual_amount || '-'}</td>
+                    <td>${decision.reasoning ? decision.reasoning.substring(0, 30) + '...' : '-'}</td>
+                    <td>${statusBadge}</td>
+                    <td>${effectBadgeHtml}</td>
+                </tr>
+            `);
+        });
+    });
+}
+
+// 加载决策效果分析
+function loadDecisionAnalysis() {
+    $.get('/decision/api/decision_analysis/' + currentPondId, function(data) {
+        // 更新投喂效率趋势图表
+        feedingEfficiencyChart.data.labels = data.efficiency.labels;
+        feedingEfficiencyChart.data.datasets = [
+            {
+                label: '推荐投喂量 (kg)',
+                data: data.efficiency.recommended,
+                borderColor: '#1890FF',
+                backgroundColor: 'rgba(24, 144, 255, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            },
+            {
+                label: '实际投喂量 (kg)',
+                data: data.efficiency.actual,
+                borderColor: '#52C41A',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                tension: 0.4
+            }
+        ];
+        feedingEfficiencyChart.update();
+        
+        // 更新决策准确率图表
+        decisionAccuracyChart.data.labels = data.accuracy.labels;
+        decisionAccuracyChart.data.datasets = [
+            {
+                label: '准确率 (%)',
+                data: data.accuracy.values,
+                backgroundColor: 'rgba(24, 144, 255, 0.6)',
+                borderColor: '#1890FF',
+                borderWidth: 1
+            }
+        ];
+        decisionAccuracyChart.update();
+    });
+}
+
+// 切换塘口
+function changePond() {
+    currentPondId = $('#pondSelect').val();
+    
+    // 重新加载所有数据
+    loadPondStatus();
+    loadHistoricalDecisions();
+    loadDecisionAnalysis();
+    
+    // 隐藏决策结果和历史决策记录
+    $('#decisionResult').hide();
+    $('#historicalDecisions').hide();
+}
+</script>
+
+<style>
+/* 决策因素样式 */
+.decision-factors {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.factor-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.factor-item:last-child {
+    border-bottom: none;
+}
+
+.factor-name {
+    font-weight: 500;
+}
+
+.factor-value {
+    color: #1890FF;
+    font-weight: 500;
+}
+</style>
+{% endblock %}

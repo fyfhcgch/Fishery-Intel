@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Data Visualization') }} - 渔智汇{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ _('Data Visualization') }}</h2>
+    <div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>{{ _('Back to Home') }}
+        </a>
+    </div>
+</div>
+
+<!-- 时间范围选择 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label for="reportType" class="form-label">{{ _('Report Type') }}</label>
+                        <select class="form-select" id="reportType" onchange="changeReportType()">
+                            <option value="daily">{{ _('Daily') }}</option>
+                            <option value="weekly">{{ _('Weekly') }}</option>
+                            <option value="monthly">{{ _('Monthly') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="dateRange" class="form-label">{{ _('Date Range') }}</label>
+                        <input type="date" class="form-control" id="dateRange" onchange="changeDateRange()">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="pondFilter" class="form-label">{{ _('Pond Filter') }}</label>
+                        <select class="form-select" id="pondFilter" onchange="filterPonds()">
+                            <option value="all">{{ _('All Ponds') }}</option>
+                            {% for pond in ponds %}
+                            <option value="{{ pond.id }}">{{ pond.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button class="btn btn-primary" onclick="generateReport()">
+                                <i class="fas fa-chart-bar me-1"></i>{{ _('Generate Report') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 报表概览 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">报表概览</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-primary" id="totalFeeding">--</div>
+                            <div class="data-label">总投喂量(kg)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-success" id="avgDo">--</div>
+                            <div class="data-label">平均溶解氧(mg/L)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-info" id="avgTemp">--</div>
+                            <div class="data-label">平均温度(°C)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="data-card">
+                            <div class="data-value text-warning" id="alertCount">--</div>
+                            <div class="data-label">预警次数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 图表区域 -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">投喂量趋势</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="feedingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">水质稳定性</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="waterQualityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">塘口对比</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="pondComparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">预警分布</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="alertDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 详细数据表格 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">详细数据</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportData('csv')">
+                        <i class="fas fa-file-csv me-1"></i>导出CSV
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportData('excel')">
+                        <i class="fas fa-file-excel me-1"></i>导出Excel
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="printReport()">
+                        <i class="fas fa-print me-1"></i>打印报表
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>塘口</th>
+                                <th>投喂量(kg)</th>
+                                <th>平均溶解氧(mg/L)</th>
+                                <th>平均温度(°C)</th>
+                                <th>平均pH值</th>
+                                <th>平均氨氮(mg/L)</th>
+                                <th>预警次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="8" class="text-center">请选择报表类型并点击"生成报表"按钮</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示消息容器 -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var feedingChart, waterQualityChart, pondComparisonChart, alertDistributionChart;
+
+$(document).ready(function() {
+    // 设置默认日期为今天
+    var today = new Date();
+    $('#dateRange').val(today.toISOString().split('T')[0]);
+    
+    // 初始化图表
+    initCharts();
+    
+    // 生成默认报表
+    generateReport();
+});
+
+// 初始化图表
+function initCharts() {
+    var chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                }
+            },
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    };
+    
+    // 投喂量趋势图表
+    var feedingCtx = document.getElementById('feedingChart').getContext('2d');
+    feedingChart = new Chart(feedingCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: chartOptions
+    });
+    
+    // 水质稳定性图表
+    var waterQualityCtx = document.getElementById('waterQualityChart').getContext('2d');
+    waterQualityChart = new Chart(waterQualityCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: chartOptions
+    });
+    
+    // 塘口对比图表
+    var pondComparisonCtx = document.getElementById('pondComparisonChart').getContext('2d');
+    pondComparisonChart = new Chart(pondComparisonCtx, {
+        type: 'radar',
+        data: {
+            labels: ['投喂效率', '水质稳定性', '预警次数', '生长速度', '饲料系数'],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+    // 预警分布图表
+    var alertDistributionCtx = document.getElementById('alertDistributionChart').getContext('2d');
+    alertDistributionChart = new Chart(alertDistributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['溶解氧预警', '温度预警', 'pH预警', '氨氮预警'],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// 生成报表
+function generateReport() {
+    var reportType = $('#reportType').val();
+    var dateRange = $('#dateRange').val();
+    var pondFilter = $('#pondFilter').val();
+    
+    // 显示加载状态
+    showLoadingState();
+    
+    // 模拟API调用
+    setTimeout(function() {
+        // 生成模拟数据
+        var reportData = generateMockReportData(reportType, dateRange, pondFilter);
+        
+        // 更新概览数据
+        updateOverview(reportData);
+        
+        // 更新图表
+        updateCharts(reportData);
+        
+        // 更新表格
+        updateTable(reportData);
+        
+        // 隐藏加载状态
+        hideLoadingState();
+        
+        showToast('报表生成成功', 'success');
+    }, 1000);
+}
+
+// 生成模拟报表数据
+function generateMockReportData(reportType, dateRange, pondFilter) {
+    // 根据报表类型确定日期范围
+    var days = reportType === 'daily' ? 1 : reportType === 'weekly' ? 7 : 30;
+    
+    // 生成日期标签
+    var labels = [];
+    var today = new Date(dateRange);
+    
+    for (var i = days - 1; i >= 0; i--) {
+        var date = new Date(today);
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }));
+    }
+    
+    // 生成投喂量数据
+    var feedingData = labels.map(() => Math.floor(Math.random() * 50) + 20);
+    
+    // 生成水质数据
+    var doData = labels.map(() => Math.random() * 2 + 4);
+    var tempData = labels.map(() => Math.random() * 5 + 22);
+    var phData = labels.map(() => Math.random() * 0.5 + 7.5);
+    var ammoniaData = labels.map(() => Math.random() * 0.3 + 0.1);
+    
+    // 生成塘口对比数据
+    var pondData = [];
+    if (pondFilter === 'all') {
+        pondData = [
+            {
+                label: '1号塘',
+                data: [85, 78, 92, 88, 76]
+            },
+            {
+                label: '2号塘',
+                data: [75, 82, 78, 85, 80]
+            },
+            {
+                label: '3号塘',
+                data: [90, 88, 85, 92, 87]
+            }
+        ];
+    } else {
+        pondData = [
+            {
+                label: '当前塘口',
+                data: [85, 78, 92, 88, 76]
+            }
+        ];
+    }
+    
+    // 生成预警分布数据
+    var alertData = [
+        Math.floor(Math.random() * 10) + 5,
+        Math.floor(Math.random() * 5) + 2,
+        Math.floor(Math.random() * 8) + 3,
+        Math.floor(Math.random() * 6) + 2
+    ];
+    
+    // 生成详细表格数据
+    var tableData = [];
+    for (var i = 0; i < days; i++) {
+        var date = new Date(today);
+        date.setDate(date.getDate() - (days - 1 - i));
+        
+        for (var j = 0; j < 3; j++) {
+            tableData.push({
+                date: date.toLocaleDateString('zh-CN'),
+                pond: (j + 1) + '号塘',
+                feeding: Math.floor(Math.random() * 50) + 20,
+                do: (Math.random() * 2 + 4).toFixed(1),
+                temp: (Math.random() * 5 + 22).toFixed(1),
+                ph: (Math.random() * 0.5 + 7.5).toFixed(1),
+                ammonia: (Math.random() * 0.3 + 0.1).toFixed(2),
+                alerts: Math.floor(Math.random() * 3)
+            });
+        }
+    }
+    
+    return {
+        labels: labels,
+        feedingData: feedingData,
+        doData: doData,
+        tempData: tempData,
+        phData: phData,
+        ammoniaData: ammoniaData,
+        pondData: pondData,
+        alertData: alertData,
+        tableData: tableData,
+        totalFeeding: feedingData.reduce((sum, val) => sum + val, 0),
+        avgDo: (doData.reduce((sum, val) => sum + val, 0) / doData.length).toFixed(1),
+        avgTemp: (tempData.reduce((sum, val) => sum + val, 0) / tempData.length).toFixed(1),
+        alertCount: alertData.reduce((sum, val) => sum + val, 0)
+    };
+}
+
+// 更新概览数据
+function updateOverview(data) {
+    $('#totalFeeding').text(data.totalFeeding);
+    $('#avgDo').text(data.avgDo);
+    $('#avgTemp').text(data.avgTemp);
+    $('#alertCount').text(data.alertCount);
+}
+
+// 更新图表
+function updateCharts(data) {
+    // 更新投喂量趋势图表
+    feedingChart.data.labels = data.labels;
+    feedingChart.data.datasets = [{
+        label: '投喂量 (kg)',
+        data: data.feedingData,
+        backgroundColor: 'rgba(24, 144, 255, 0.6)',
+        borderColor: '#1890FF',
+        borderWidth: 1
+    }];
+    feedingChart.update();
+    
+    // 更新水质稳定性图表
+    waterQualityChart.data.labels = data.labels;
+    waterQualityChart.data.datasets = [
+        {
+            label: '溶解氧 (mg/L)',
+            data: data.doData,
+            borderColor: '#1890FF',
+            backgroundColor: 'rgba(24, 144, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        },
+        {
+            label: '温度 (°C)',
+            data: data.tempData,
+            borderColor: '#FA8C16',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.4
+        }
+    ];
+    waterQualityChart.update();
+    
+    // 更新塘口对比图表
+    pondComparisonChart.data.datasets = data.pondData;
+    pondComparisonChart.update();
+    
+    // 更新预警分布图表
+    alertDistributionChart.data.datasets = [{
+        data: data.alertData,
+        backgroundColor: [
+            'rgba(24, 144, 255, 0.6)',
+            'rgba(250, 140, 22, 0.6)',
+            'rgba(82, 196, 26, 0.6)',
+            'rgba(245, 34, 45, 0.6)'
+        ],
+        borderColor: [
+            '#1890FF',
+            '#FA8C16',
+            '#52C41A',
+            '#F5222D'
+        ],
+        borderWidth: 1
+    }];
+    alertDistributionChart.update();
+}
+
+// 更新表格
+function updateTable(data) {
+    var tbody = $('#dataTable tbody');
+    tbody.empty();
+    
+    data.tableData.forEach(function(row) {
+        tbody.append(`
+            <tr>
+                <td>${row.date}</td>
+                <td>${row.pond}</td>
+                <td>${row.feeding}</td>
+                <td>${row.do}</td>
+                <td>${row.temp}</td>
+                <td>${row.ph}</td>
+                <td>${row.ammonia}</td>
+                <td>${row.alerts}</td>
+            </tr>
+        `);
+    });
+}
+
+// 显示加载状态
+function showLoadingState() {
+    // 显示加载动画
+    $('#dataTable tbody').html('<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</td></tr>');
+}
+
+// 隐藏加载状态
+function hideLoadingState() {
+    // 加载动画会在updateTable中被替换
+}
+
+// 切换报表类型
+function changeReportType() {
+    generateReport();
+}
+
+// 切换日期范围
+function changeDateRange() {
+    generateReport();
+}
+
+// 筛选塘口
+function filterPonds() {
+    generateReport();
+}
+
+// 导出数据
+function exportData(format) {
+    var reportType = $('#reportType').val();
+    var dateRange = $('#dateRange').val();
+    var pondFilter = $('#pondFilter').val();
+    
+    // 构建导出URL
+    var url = '/data/export?format=' + format + '&report_type=' + reportType + '&date=' + dateRange;
+    if (pondFilter !== 'all') {
+        url += '&pond_id=' + pondFilter;
+    }
+    
+    // 打开下载链接
+    window.open(url, '_blank');
+    
+    showToast('数据导出已开始', 'success');
+}
+
+// 打印报表
+function printReport() {
+    window.print();
+    showToast('打印对话框已打开', 'success');
+}
+</script>
+
+<style>
+/* 打印样式 */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+    
+    .btn {
+        display: none !important;
+    }
+    
+    .table {
+        font-size: 12px;
+    }
+}
+</style>
+{% endblock %}
